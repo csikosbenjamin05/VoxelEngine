@@ -1,0 +1,3 @@
+# Saját Minecraft klón számítógépes grafika, OpenGL és C++ tanulásához
+
+... Fejlesztés alatt ...
