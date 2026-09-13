@@ -170,7 +170,7 @@
 #define GLFW_VERSION_COMBINED           (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 + GLFW_VERSION_REVISION)
 #define GLFW_HAS_CREATECURSOR           (GLFW_VERSION_COMBINED >= 3100) // 3.1+ glfwCreateCursor()
 #define GLFW_HAS_PER_MONITOR_DPI        (GLFW_VERSION_COMBINED >= 3300) // 3.3+ glfwGetMonitorContentScale
-#ifdef GLFW_RESIZE_NESW_CURSOR          // Let's be nice to people who pulled GLFW between 2019-04-16 (3.4 define) and 2019-11-29 (cursors defines) // FIXME: Remove when GLFW 3.4 is released?
+#ifdef GLFW_RESIZE_NESW_CURSOR          // Let's be nice to people who pulled GLFW between 2019-04-16 (3.4 define) and 2019-11-29 (cursors defines) // TODO_FROM_EXTERNAL: Remove when GLFW 3.4 is released?
 #define GLFW_HAS_NEW_CURSORS            (GLFW_VERSION_COMBINED >= 3400) // 3.4+ GLFW_RESIZE_ALL_CURSOR, GLFW_RESIZE_NESW_CURSOR, GLFW_RESIZE_NWSE_CURSOR, GLFW_NOT_ALLOWED_CURSOR
 #else
 #define GLFW_HAS_NEW_CURSORS            (0)
@@ -236,11 +236,11 @@ struct ImGui_ImplGlfw_Data
 
 // Backend data stored in io.BackendPlatformUserData to allow support for multiple Dear ImGui contexts
 // It is STRONGLY preferred that you use docking branch with multi-viewports (== single Dear ImGui context + multiple windows) instead of multiple Dear ImGui contexts.
-// FIXME: multi-context support is not well tested and probably dysfunctional in this backend.
+// TODO_FROM_EXTERNAL: multi-context support is not well tested and probably dysfunctional in this backend.
 // - Because glfwPollEvents() process all windows and some events may be called outside of it, you will need to register your own callbacks
 //   (passing install_callbacks=false in ImGui_ImplGlfw_InitXXX functions), set the current dear imgui context and then call our callbacks.
 // - Otherwise we may need to store a GLFWWindow* -> ImGuiContext* map and handle this in the backend, adding a little bit of extra complexity to it.
-// FIXME: some shared resources (mouse cursor shape, gamepad) are mishandled when using multi-context.
+// TODO_FROM_EXTERNAL: some shared resources (mouse cursor shape, gamepad) are mishandled when using multi-context.
 namespace ImGui { extern ImGuiIO& GetIO(ImGuiContext*); }
 static ImGui_ImplGlfw_Data* ImGui_ImplGlfw_GetBackendData()
 {
@@ -445,7 +445,7 @@ void ImGui_ImplGlfw_ScrollCallback(GLFWwindow* window, double xoffset, double yo
     io.AddMouseWheelEvent((float)xoffset, (float)yoffset);
 }
 
-// FIXME: should this be baked into ImGui_ImplGlfw_KeyToImGuiKey()? then what about the values passed to io.SetKeyEventNativeData()?
+// TODO_FROM_EXTERNAL: should this be baked into ImGui_ImplGlfw_KeyToImGuiKey()? then what about the values passed to io.SetKeyEventNativeData()?
 static int ImGui_ImplGlfw_TranslateUntranslatedKey(int key, int scancode)
 {
 #if GLFW_HAS_GETKEYNAME && !defined(EMSCRIPTEN_USE_EMBEDDED_GLFW3)
@@ -882,7 +882,7 @@ static void ImGui_ImplGlfw_UpdateMouseCursor()
         else
         {
             // Show OS mouse cursor
-            // FIXME-PLATFORM: Unfocused windows seems to fail changing the mouse cursor with GLFW 3.2, but 3.3 works here.
+            // TODO_FROM_EXTERNAL-PLATFORM: Unfocused windows seems to fail changing the mouse cursor with GLFW 3.2, but 3.3 works here.
 #if GLFW_HAS_CREATECURSOR
             GLFWcursor* cursor = bd->MouseCursors[imgui_cursor] ? bd->MouseCursors[imgui_cursor] : bd->MouseCursors[ImGuiMouseCursor_Arrow];
             if (bd->LastMouseCursor != cursor)
@@ -901,7 +901,7 @@ static inline float Saturate(float v) { return v < 0.0f ? 0.0f : v  > 1.0f ? 1.0
 static void ImGui_ImplGlfw_UpdateGamepads()
 {
     ImGuiIO& io = ImGui::GetIO();
-    if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0) // FIXME: Technically feeding gamepad shouldn't depend on this now that they are regular inputs, but see #8075
+    if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0) // TODO_FROM_EXTERNAL: Technically feeding gamepad shouldn't depend on this now that they are regular inputs, but see #8075
         return;
 
     io.BackendFlags &= ~ImGuiBackendFlags_HasGamepad;
@@ -1084,7 +1084,7 @@ void ImGui_ImplGlfw_InstallEmscriptenCallbacks(GLFWwindow*, const char* canvas_s
 
     // Register Emscripten Wheel callback to workaround issue in Emscripten GLFW Emulation (#6096)
     // We intentionally do not check 'if (install_callbacks)' here, as some users may set it to false and call GLFW callback themselves.
-    // FIXME: May break chaining in case user registered their own Emscripten callback?
+    // TODO_FROM_EXTERNAL: May break chaining in case user registered their own Emscripten callback?
     emscripten_set_wheel_callback(bd->CanvasSelector, bd, false, ImGui_ImplEmscripten_WheelCallback);
 }
 #elif defined(EMSCRIPTEN_USE_PORT_CONTRIB_GLFW3)

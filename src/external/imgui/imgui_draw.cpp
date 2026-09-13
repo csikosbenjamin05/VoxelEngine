@@ -736,7 +736,7 @@ void ImDrawList::PrimReserve(int idx_count, int vtx_count)
     IM_ASSERT_PARANOID(idx_count >= 0 && vtx_count >= 0);
     if (sizeof(ImDrawIdx) == 2 && (_VtxCurrentIdx + vtx_count >= (1 << 16)) && (Flags & ImDrawListFlags_AllowVtxOffset))
     {
-        // FIXME: In theory we should be testing that vtx_count <64k here.
+        // TODO_FROM_EXTERNAL: In theory we should be testing that vtx_count <64k here.
         // In practice, RenderText() relies on reserving ahead for a worst case scenario so it is currently useful for us
         // to not make that check until we rework the text functions to handle clipping and large horizontal lines better.
         _CmdHeader.VtxOffset = VtxBuffer.Size;
@@ -818,7 +818,7 @@ void ImDrawList::PrimQuadUV(const ImVec2& a, const ImVec2& b, const ImVec2& c, c
 #define IM_FIXNORMAL2F_MAX_INVLEN2          100.0f // 500.0f (see #4053, #3366)
 #define IM_FIXNORMAL2F(VX,VY)               { float d2 = VX*VX + VY*VY; if (d2 > 0.000001f) { float inv_len2 = 1.0f / d2; if (inv_len2 > IM_FIXNORMAL2F_MAX_INVLEN2) inv_len2 = IM_FIXNORMAL2F_MAX_INVLEN2; VX *= inv_len2; VY *= inv_len2; } } (void)0
 
-// TODO: Thickness anti-aliased lines cap are missing their AA fringe.
+// TODO_FROM_EXTERNAL: Thickness anti-aliased lines cap are missing their AA fringe.
 // We avoid using the ImVec2 math operators here to reduce cost to a minimum for debug/non-inlined builds.
 void ImDrawList::AddPolyline(const ImVec2* points, const int points_count, ImU32 col, float thickness, ImDrawFlags flags)
 {
@@ -902,7 +902,7 @@ void ImDrawList::AddPolyline(const ImVec2* points, const int points_count, ImU32
 
             // Generate the indices to form a number of triangles for each line segment, and the vertices for the line edges
             // This takes points n and n+1 and writes into n+1, with the first point in a closed line being generated from the final one (as n+1 wraps)
-            // FIXME-OPT: Merge the different loops, possibly remove the temporary buffer.
+            // TODO_FROM_EXTERNAL-OPT: Merge the different loops, possibly remove the temporary buffer.
             unsigned int idx1 = _VtxCurrentIdx; // Vertex index for start of line segment
             for (int i1 = 0; i1 < count; i1++) // i1 is the first point of the line segment
             {
@@ -998,7 +998,7 @@ void ImDrawList::AddPolyline(const ImVec2* points, const int points_count, ImU32
 
             // Generate the indices to form a number of triangles for each line segment, and the vertices for the line edges
             // This takes points n and n+1 and writes into n+1, with the first point in a closed line being generated from the final one (as n+1 wraps)
-            // FIXME-OPT: Merge the different loops, possibly remove the temporary buffer.
+            // TODO_FROM_EXTERNAL-OPT: Merge the different loops, possibly remove the temporary buffer.
             unsigned int idx1 = _VtxCurrentIdx; // Vertex index for start of line segment
             for (int i1 = 0; i1 < count; i1++) // i1 is the first point of the line segment
             {
@@ -1053,7 +1053,7 @@ void ImDrawList::AddPolyline(const ImVec2* points, const int points_count, ImU32
     {
         // [PATH 4] Non texture-based, Non anti-aliased lines
         const int idx_count = count * 6;
-        const int vtx_count = count * 4;    // FIXME-OPT: Not sharing edges
+        const int vtx_count = count * 4;    // TODO_FROM_EXTERNAL-OPT: Not sharing edges
         PrimReserve(idx_count, vtx_count);
 
         for (int i1 = 0; i1 < count; i1++)
@@ -1888,7 +1888,7 @@ struct ImTriangulator
 };
 
 // Distribute storage for nodes, ears and reflexes.
-// FIXME-OPT: if everything is convex, we could report it to caller and let it switch to an convex renderer
+// TODO_FROM_EXTERNAL-OPT: if everything is convex, we could report it to caller and let it switch to an convex renderer
 // (this would require first building reflexes to bail to convex if empty, without even building nodes)
 void ImTriangulator::Init(const ImVec2* points, int points_count, void* scratch_buffer)
 {
@@ -2140,7 +2140,7 @@ void ImDrawList::AddConcavePolyFilled(const ImVec2* points, const int points_cou
 //-----------------------------------------------------------------------------
 // [SECTION] ImDrawListSplitter
 //-----------------------------------------------------------------------------
-// FIXME: This may be a little confusing, trying to be a little too low-level/optimal instead of just doing vector swap..
+// TODO_FROM_EXTERNAL: This may be a little confusing, trying to be a little too low-level/optimal instead of just doing vector swap..
 //-----------------------------------------------------------------------------
 
 void ImDrawListSplitter::ClearFreeMemory()
@@ -2217,7 +2217,7 @@ void ImDrawListSplitter::Merge(ImDrawList* draw_list)
                 // Merge previous channel last draw command with current channel first draw command if matching.
                 last_cmd->ElemCount += next_cmd->ElemCount;
                 idx_offset += next_cmd->ElemCount;
-                ch._CmdBuffer.erase(ch._CmdBuffer.Data); // FIXME-OPT: Improve for multiple merges.
+                ch._CmdBuffer.erase(ch._CmdBuffer.Data); // TODO_FROM_EXTERNAL-OPT: Improve for multiple merges.
             }
         }
         if (ch._CmdBuffer.Size > 0)
@@ -2444,7 +2444,7 @@ void ImGui::ShadeVertsTransformPos(ImDrawList* draw_list, int vert_start_idx, in
 // [SECTION] ImFontConfig
 //-----------------------------------------------------------------------------
 
-// FIXME-NEWATLAS: Oversample specification could be more dynamic. For now, favoring automatic selection.
+// TODO_FROM_EXTERNAL-NEWATLAS: Oversample specification could be more dynamic. For now, favoring automatic selection.
 ImFontConfig::ImFontConfig()
 {
     memset((void*)this, 0, sizeof(*this));
@@ -2710,7 +2710,7 @@ void ImFontAtlas::Clear()
 
 void ImFontAtlas::ClearFonts()
 {
-    // FIXME-NEWATLAS: Illegal to remove currently bound font.
+    // TODO_FROM_EXTERNAL-NEWATLAS: Illegal to remove currently bound font.
     IMGUI_DEBUG_LOG_FONT("[font] ImFontAtlas::ClearFonts()\n");
     IM_ASSERT(!Locked && "Cannot modify a locked ImFontAtlas!");
     for (ImFont* font : Fonts)
@@ -3124,7 +3124,7 @@ ImFont* ImFontAtlas::AddFont(const ImFontConfig* font_cfg_in)
     if (font_cfg->FontLoader != NULL)
     {
         IM_ASSERT(font_cfg->FontLoader->FontBakedLoadGlyph != NULL);
-        IM_ASSERT(font_cfg->FontLoader->LoaderInit == NULL && font_cfg->FontLoader->LoaderShutdown == NULL); // FIXME-NEWATLAS: Unsupported yet.
+        IM_ASSERT(font_cfg->FontLoader->LoaderInit == NULL && font_cfg->FontLoader->LoaderShutdown == NULL); // TODO_FROM_EXTERNAL-NEWATLAS: Unsupported yet.
     }
     //                             | Target w/ Implicit RefSize | Target w/ Explicit RefSize |
     // Adding w/ Implicit RefSize: | OK (same scale)            | OK (same scale)            |
@@ -3414,7 +3414,7 @@ ImFontAtlasRectId ImFontAtlas::AddCustomRectFontGlyph(ImFont* font, ImWchar code
     float font_size = font->LegacySize;
     return AddCustomRectFontGlyphForSize(font, font_size, codepoint, width, height, advance_x, offset);
 }
-// FIXME: we automatically set glyph.Colored=true by default.
+// TODO_FROM_EXTERNAL: we automatically set glyph.Colored=true by default.
 // If you need to alter this, you can write 'font->Glyphs.back()->Colored' after calling AddCustomRectFontGlyph().
 ImFontAtlasRectId ImFontAtlas::AddCustomRectFontGlyphForSize(ImFont* font, float font_size, ImWchar codepoint, int width, int height, float advance_x, const ImVec2& offset)
 {
@@ -3445,7 +3445,7 @@ ImFontAtlasRectId ImFontAtlas::AddCustomRectFontGlyphForSize(ImFont* font, float
     glyph.X1 = offset.x + r->w;
     glyph.Y1 = offset.y + r->h;
     glyph.Visible = true;
-    glyph.Colored = true; // FIXME: Arbitrary
+    glyph.Colored = true; // TODO_FROM_EXTERNAL: Arbitrary
     glyph.PackId = r_id;
     ImFontAtlasBakedAddFontGlyph(this, baked, font->Sources[0], &glyph);
     return r_id;
@@ -3567,7 +3567,7 @@ void ImFontAtlasBuildLegacyPreloadAllGlyphRanges(ImFontAtlas* atlas)
     }
 }
 
-// FIXME: May make ImFont::Sources a ImSpan<> and move ownership to ImFontAtlas
+// TODO_FROM_EXTERNAL: May make ImFont::Sources a ImSpan<> and move ownership to ImFontAtlas
 void ImFontAtlasBuildUpdatePointers(ImFontAtlas* atlas)
 {
     for (ImFont* font : atlas->Fonts)
@@ -3607,7 +3607,7 @@ void ImFontAtlasBuildRenderBitmapFromString(ImFontAtlas* atlas, int x, int y, in
 static void ImFontAtlasBuildUpdateTexDataBasic(ImFontAtlas* atlas)
 {
     // Pack and store identifier so we can refresh UV coordinates on texture resize.
-    // FIXME-NEWATLAS: User/custom rects where user code wants to store UV coordinates will need to do the same thing.
+    // TODO_FROM_EXTERNAL-NEWATLAS: User/custom rects where user code wants to store UV coordinates will need to do the same thing.
     ImFontAtlasBuilder* builder = atlas->Builder;
     ImVec2i pack_size = (atlas->Flags & ImFontAtlasFlags_NoMouseCursors) ? ImVec2i(2, 2) : ImVec2i(FONT_ATLAS_DEFAULT_TEX_DATA_W * 2 + 1, FONT_ATLAS_DEFAULT_TEX_DATA_H);
 
@@ -3774,7 +3774,7 @@ void ImFontAtlasFontDestroySourceData(ImFontAtlas* atlas, ImFontConfig* src)
 
 // Create a compact, baked "..." if it doesn't exist, by using the ".".
 // This may seem overly complicated right now but the point is to exercise and improve a technique which should be increasingly used.
-// FIXME-NEWATLAS: This borrows too much from FontLoader's FontLoadGlyph() handlers and suggest that we should add further helpers.
+// TODO_FROM_EXTERNAL-NEWATLAS: This borrows too much from FontLoader's FontLoadGlyph() handlers and suggest that we should add further helpers.
 static ImFontGlyph* ImFontAtlasBuildSetupFontBakedEllipsis(ImFontAtlas* atlas, ImFontBaked* baked)
 {
     ImFont* font = baked->OwnerFont;
@@ -3796,7 +3796,7 @@ static ImFontGlyph* ImFontAtlasBuildSetupFontBakedEllipsis(ImFontAtlas* atlas, I
     ImFontGlyph glyph_in = {};
     ImFontGlyph* glyph = &glyph_in;
     glyph->Codepoint = font->EllipsisChar;
-    glyph->AdvanceX = ImMax(dot_glyph->AdvanceX, dot_glyph->X0 + dot_step * 3.0f - dot_spacing); // FIXME: Slightly odd for normally mono-space fonts but since this is used for trailing contents.
+    glyph->AdvanceX = ImMax(dot_glyph->AdvanceX, dot_glyph->X0 + dot_step * 3.0f - dot_spacing); // TODO_FROM_EXTERNAL: Slightly odd for normally mono-space fonts but since this is used for trailing contents.
     glyph->X0 = dot_glyph->X0;
     glyph->Y0 = dot_glyph->Y0;
     glyph->X1 = dot_glyph->X0 + dot_step * 3 - dot_spacing;
@@ -3807,7 +3807,7 @@ static ImFontGlyph* ImFontAtlasBuildSetupFontBakedEllipsis(ImFontAtlas* atlas, I
     dot_glyph = NULL; // Invalidated
 
     // Copy to texture, post-process and queue update for backend
-    // FIXME-NEWATLAS-V2: Dot glyph is already post-processed as this point, so this would damage it.
+    // TODO_FROM_EXTERNAL-NEWATLAS-V2: Dot glyph is already post-processed as this point, so this would damage it.
     dot_r = ImFontAtlasPackGetRect(atlas, dot_r_id);
     ImTextureData* tex = atlas->TexData;
     for (int n = 0; n < 3; n++)
@@ -3847,7 +3847,7 @@ static void ImFontAtlasBuildSetupFontBakedBlanks(ImFontAtlas* atlas, ImFontBaked
         space_glyph->Visible = false;
 
     // Setup Tab character.
-    // FIXME: Needs proper TAB handling but it needs to be contextualized (or we could arbitrary say that each string starts at "column 0" ?)
+    // TODO_FROM_EXTERNAL: Needs proper TAB handling but it needs to be contextualized (or we could arbitrary say that each string starts at "column 0" ?)
     if (baked->FindGlyphNoFallback('\t') == NULL && space_glyph != NULL)
     {
         ImFontGlyph tab_glyph;
@@ -3876,7 +3876,7 @@ void ImFontAtlasBuildSetupFontSpecialGlyphs(ImFontAtlas* atlas, ImFont* font, Im
 
     // Setup Ellipsis character. It is required for rendering elided text. We prefer using U+2026 (horizontal ellipsis).
     // However some old fonts may contain ellipsis at U+0085. Here we auto-detect most suitable ellipsis character.
-    // FIXME: Note that 0x2026 is rarely included in our font ranges. Because of this we are more likely to use three individual dots.
+    // TODO_FROM_EXTERNAL: Note that 0x2026 is rarely included in our font ranges. Because of this we are more likely to use three individual dots.
     const ImWchar ellipsis_chars[] = { src->EllipsisChar, (ImWchar)0x2026, (ImWchar)0x0085 };
     if (font->EllipsisChar == 0)
         for (ImWchar candidate_char : ellipsis_chars)
@@ -3938,7 +3938,7 @@ ImFontBaked* ImFontAtlasBakedAdd(ImFontAtlas* atlas, ImFont* font, float font_si
     return baked;
 }
 
-// FIXME-OPT: This is not a fast query. Adding a BakedCount field in Font might allow to take a shortcut for the most common case.
+// TODO_FROM_EXTERNAL-OPT: This is not a fast query. Adding a BakedCount field in Font might allow to take a shortcut for the most common case.
 ImFontBaked* ImFontAtlasBakedGetClosestMatch(ImFontAtlas* atlas, ImFont* font, float font_size, float font_rasterizer_density)
 {
     ImFontAtlasBuilder* builder = atlas->Builder;
@@ -4065,7 +4065,7 @@ void ImFontAtlasUpdateDrawListsTextures(ImFontAtlas* atlas, ImTextureRef old_tex
 }
 
 // Update texture coordinates in all draw list shared context
-// FIXME-NEWATLAS FIXME-OPT: Doesn't seem necessary to update for all, only one bound to current context?
+// TODO_FROM_EXTERNAL-NEWATLAS TODO_FROM_EXTERNAL-OPT: Doesn't seem necessary to update for all, only one bound to current context?
 void ImFontAtlasUpdateDrawListsSharedData(ImFontAtlas* atlas)
 {
     for (ImDrawListSharedData* shared_data : atlas->DrawListSharedDatas)
@@ -4099,7 +4099,7 @@ ImTextureData* ImFontAtlasTextureAdd(ImFontAtlas* atlas, int w, int h)
     ImTextureData* old_tex = atlas->TexData;
     ImTextureData* new_tex;
 
-    // FIXME: Cannot reuse texture because old UV may have been used already (unless we remap UV).
+    // TODO_FROM_EXTERNAL: Cannot reuse texture because old UV may have been used already (unless we remap UV).
     /*if (old_tex != NULL && old_tex->Status == ImTextureStatus_WantCreate)
     {
         // Reuse texture not yet used by backend.
@@ -4158,9 +4158,9 @@ void ImFontAtlasTextureRepack(ImFontAtlas* atlas, int w, int h)
     //ImFontAtlasDebugWriteTexToDisk(old_tex, "Before Pack");
 
     // Repack, lose discarded rectangle, copy pixels
-    // FIXME-NEWATLAS: This is unstable because packing order is based on RectsIndex
-    // FIXME-NEWATLAS-V2: Repacking in batch would be beneficial to packing heuristic, and fix stability.
-    // FIXME-NEWATLAS-TESTS: Test calling RepackTexture with size too small to fits existing rects.
+    // TODO_FROM_EXTERNAL-NEWATLAS: This is unstable because packing order is based on RectsIndex
+    // TODO_FROM_EXTERNAL-NEWATLAS-V2: Repacking in batch would be beneficial to packing heuristic, and fix stability.
+    // TODO_FROM_EXTERNAL-NEWATLAS-TESTS: Test calling RepackTexture with size too small to fits existing rects.
     ImFontAtlasPackInit(atlas);
     ImVector<ImTextureRect> old_rects;
     ImVector<ImFontAtlasRectEntry> old_index = builder->RectsIndex;
@@ -4177,7 +4177,7 @@ void ImFontAtlasTextureRepack(ImFontAtlas* atlas, int w, int h)
         if (new_r_id == ImFontAtlasRectId_Invalid)
         {
             // Undo, grow texture and try repacking again.
-            // FIXME-NEWATLAS-TESTS: This is a very rarely exercised path! It needs to be automatically tested properly.
+            // TODO_FROM_EXTERNAL-NEWATLAS-TESTS: This is a very rarely exercised path! It needs to be automatically tested properly.
             IMGUI_DEBUG_LOG_FONT("[font] Texture #%03d: resize failed. Will grow.\n", new_tex->UniqueID);
             new_tex->WantDestroyNextFrame = true;
             builder->Rects.swap(old_rects);
@@ -4223,8 +4223,8 @@ void ImFontAtlasTextureGrow(ImFontAtlas* atlas, int old_tex_w, int old_tex_h)
     if (old_tex_h == -1)
         old_tex_h = atlas->TexData->Height;
 
-    // FIXME-NEWATLAS-V2: What to do when reaching limits exposed by backend?
-    // FIXME-NEWATLAS-V2: Does ImFontAtlasFlags_NoPowerOfTwoHeight makes sense now? Allow 'lock' and 'compact' operations?
+    // TODO_FROM_EXTERNAL-NEWATLAS-V2: What to do when reaching limits exposed by backend?
+    // TODO_FROM_EXTERNAL-NEWATLAS-V2: Does ImFontAtlasFlags_NoPowerOfTwoHeight makes sense now? Allow 'lock' and 'compact' operations?
     IM_ASSERT(ImIsPowerOfTwo(old_tex_w) && ImIsPowerOfTwo(old_tex_h));
     IM_ASSERT(ImIsPowerOfTwo(atlas->TexMinWidth) && ImIsPowerOfTwo(atlas->TexMaxWidth) && ImIsPowerOfTwo(atlas->TexMinHeight) && ImIsPowerOfTwo(atlas->TexMaxHeight));
 
@@ -4367,7 +4367,7 @@ void ImFontAtlasBuildInit(ImFontAtlas* atlas)
     //atlas->TexIsBuilt = true;
 
     // Lazily initialize char/text classifier
-    // FIXME: This could be practically anywhere, and should eventually be parameters to CalcTextSize/word-wrapping code, but there's no obvious spot now.
+    // TODO_FROM_EXTERNAL: This could be practically anywhere, and should eventually be parameters to CalcTextSize/word-wrapping code, but there's no obvious spot now.
     ImTextInitClassifiers();
 }
 
@@ -4463,7 +4463,7 @@ void ImFontAtlasPackDiscardRect(ImFontAtlas* atlas, ImFontAtlasRectId id)
 }
 
 // Important: Calling this may recreate a new texture and therefore change atlas->TexData
-// FIXME-NEWFONTS: Expose other glyph padding settings for custom alteration (e.g. drop shadows). See #7962
+// TODO_FROM_EXTERNAL-NEWFONTS: Expose other glyph padding settings for custom alteration (e.g. drop shadows). See #7962
 ImFontAtlasRectId ImFontAtlasPackAddRect(ImFontAtlas* atlas, int w, int h, ImFontAtlasRectEntry* overwrite_entry)
 {
     IM_ASSERT(w > 0 && w <= 0xFFFF);
@@ -4589,7 +4589,7 @@ static ImFontGlyph* ImFontBaked_BuildLoadGlyph(ImFontBaked* baked, ImWchar codep
     //IMGUI_DEBUG_LOG("[font] BuildLoadGlyph U+%04X (%s)\n", (unsigned int)codepoint, ImTextCharToUtf8(utf8_buf, (unsigned int)codepoint));
 
     // Special hook
-    // FIXME-NEWATLAS: it would be nicer if this used a more standardized way of hooking
+    // TODO_FROM_EXTERNAL-NEWATLAS: it would be nicer if this used a more standardized way of hooking
     if (codepoint == font->EllipsisChar && font->EllipsisAutoBake)
         if (ImFontGlyph* glyph = ImFontAtlasBuildSetupFontBakedEllipsis(atlas, baked))
             return glyph;
@@ -4607,7 +4607,7 @@ static ImFontGlyph* ImFontBaked_BuildLoadGlyph(ImFontBaked* baked, ImWchar codep
                 ImFontGlyph glyph_buf;
                 if (loader->FontBakedLoadGlyph(atlas, src, baked, loader_user_data_p, codepoint, &glyph_buf, NULL))
                 {
-                    // FIXME: Add hooks for e.g. #7962
+                    // TODO_FROM_EXTERNAL: Add hooks for e.g. #7962
                     glyph_buf.Codepoint = src_codepoint;
                     glyph_buf.SourceIdx = src_n;
                     return ImFontAtlasBakedAddFontGlyph(atlas, baked, src, &glyph_buf);
@@ -4737,7 +4737,7 @@ static bool ImGui_ImplStbTrueType_FontSrcInit(ImFontAtlas* atlas, ImFontConfig* 
 
     bd_font_data->ScaleFactor = stbtt_ScaleForPixelHeight(&bd_font_data->FontInfo, 1.0f);
     if (src->MergeMode && src->SizePixels != 0.0f && ref_size != 0.0f)
-        bd_font_data->ScaleFactor *= src->SizePixels / ref_size; // FIXME-NEWATLAS: Should tidy up that a bit
+        bd_font_data->ScaleFactor *= src->SizePixels / ref_size; // TODO_FROM_EXTERNAL-NEWATLAS: Should tidy up that a bit
     bd_font_data->ScaleFactor *= src->ExtraSizeScale;
 
     return true;
@@ -4769,8 +4769,8 @@ static bool ImGui_ImplStbTrueType_FontBakedInit(ImFontAtlas* atlas, ImFontConfig
     ImGui_ImplStbTrueType_FontSrcData* bd_font_data = (ImGui_ImplStbTrueType_FontSrcData*)src->FontLoaderData;
     if (src->MergeMode == false)
     {
-        // FIXME-NEWFONTS: reevaluate how to use sizing metrics
-        // FIXME-NEWFONTS: make use of line gap value
+        // TODO_FROM_EXTERNAL-NEWFONTS: reevaluate how to use sizing metrics
+        // TODO_FROM_EXTERNAL-NEWFONTS: make use of line gap value
         const float scale_for_layout = bd_font_data->ScaleFactor * baked->Size / src->ExtraSizeScale;
         int unscaled_ascent, unscaled_descent, unscaled_line_gap;
         stbtt_GetFontVMetrics(&bd_font_data->FontInfo, &unscaled_ascent, &unscaled_descent, &unscaled_line_gap);
@@ -5313,7 +5313,7 @@ ImFontGlyph* ImFontAtlasBakedAddFontGlyph(ImFontAtlas* atlas, ImFontBaked* baked
     return glyph;
 }
 
-// FIXME: Code is duplicated with code above.
+// TODO_FROM_EXTERNAL: Code is duplicated with code above.
 void ImFontAtlasBakedAddFontGlyphAdvancedX(ImFontAtlas* atlas, ImFontBaked* baked, ImFontConfig* src, ImWchar codepoint, float advance_x)
 {
     IM_UNUSED(atlas);
@@ -5461,8 +5461,8 @@ ImFontBaked* ImFont::GetFontBaked(float size, float density)
 
 ImFontBaked* ImFontAtlasBakedGetOrAdd(ImFontAtlas* atlas, ImFont* font, float font_size, float font_rasterizer_density)
 {
-    // FIXME-NEWATLAS: Design for picking a nearest size based on some criteria?
-    // FIXME-NEWATLAS: Altering font density won't work right away.
+    // TODO_FROM_EXTERNAL-NEWATLAS: Design for picking a nearest size based on some criteria?
+    // TODO_FROM_EXTERNAL-NEWATLAS: Altering font density won't work right away.
     IM_ASSERT(font_size > 0.0f && font_rasterizer_density > 0.0f);
     ImGuiID baked_id = ImFontAtlasBakedGetId(font->FontId, font_size, font_rasterizer_density);
     ImFontAtlasBuilder* builder = atlas->Builder;
@@ -5475,7 +5475,7 @@ ImFontBaked* ImFontAtlasBakedGetOrAdd(ImFontAtlas* atlas, ImFont* font, float fo
     }
 
     // If atlas is locked, find closest match
-    // FIXME-OPT: This is not an optimal query.
+    // TODO_FROM_EXTERNAL-OPT: This is not an optimal query.
     if ((font->Flags & ImFontFlags_LockBakedSizes) || atlas->Locked)
     {
         baked = ImFontAtlasBakedGetClosestMatch(atlas, font, font_size, font_rasterizer_density);
@@ -5635,7 +5635,7 @@ const char* ImFontCalcWordWrapPositionEx(ImFont* font, float size, const char* t
         else
         {
             // End span: '.X' unless X is a digit
-            if (prev_type == ImWcharClass_Punct && curr_type != ImWcharClass_Punct && !(c >= '0' && c <= '9')) // FIXME: Digit checks might be removed if allow custom separators (#8503)
+            if (prev_type == ImWcharClass_Punct && curr_type != ImWcharClass_Punct && !(c >= '0' && c <= '9')) // TODO_FROM_EXTERNAL: Digit checks might be removed if allow custom separators (#8503)
             {
                 span_end = s;
                 line_width += span_width + blank_width;
@@ -5655,7 +5655,7 @@ const char* ImFontCalcWordWrapPositionEx(ImFont* font, float size, const char* t
         {
             if (span_width + blank_width > wrap_width)
                 break;
-            // FIXME: Narrow wrapping e.g. "A quick brown" -> "Quic|k br|own", would require knowing if span is going to be longer than wrap_width.
+            // TODO_FROM_EXTERNAL: Narrow wrapping e.g. "A quick brown" -> "Quic|k br|own", would require knowing if span is going to be longer than wrap_width.
             //if (span_width > wrap_width && !is_blank && !was_blank)
             //    return s;
             return span_end;
@@ -5680,7 +5680,7 @@ const char* ImFont::CalcWordWrapPosition(float size, const char* text, const cha
 ImVec2 ImFontCalcTextSizeEx(ImFont* font, float size, float max_width, float wrap_width, const char* text_begin, const char* text_end_display, const char* text_end, const char** out_remaining, ImVec2* out_offset, ImDrawTextFlags flags)
 {
     if (!text_end)
-        text_end = text_begin + ImStrlen(text_begin); // FIXME-OPT: Need to avoid this.
+        text_end = text_begin + ImStrlen(text_begin); // TODO_FROM_EXTERNAL-OPT: Need to avoid this.
     if (!text_end_display)
         text_end_display = text_end;
 
@@ -5851,7 +5851,7 @@ begin:
             const char* line_end = (const char*)ImMemchr(s, '\n', text_end - s);
             if (word_wrap_enabled)
             {
-                // FIXME-OPT: This is not optimal as do first do a search for \n before calling CalcWordWrapPosition().
+                // TODO_FROM_EXTERNAL-OPT: This is not optimal as do first do a search for \n before calling CalcWordWrapPosition().
                 // If the specs for CalcWordWrapPosition() were reworked to optionally return on \n we could combine both.
                 // However it is still better than nothing performing the fast-forward!
                 s = ImFontCalcWordWrapPositionEx(this, size, s, line_end ? line_end : text_end, wrap_width, flags);
@@ -6016,7 +6016,7 @@ begin:
         //IMGUI_DEBUG_LOG("RenderText: cancel and retry to missing glyphs.\n"); // [DEBUG]
         //draw_list->AddRectFilled(pos, pos + ImVec2(10, 10), IM_COL32(255, 0, 0, 255)); // [DEBUG]
         goto begin;
-        //RenderText(draw_list, size, pos, col, clip_rect, text_begin, text_end, wrap_width, cpu_fine_clip); // FIXME-OPT: Would a 'goto begin' be better for code-gen?
+        //RenderText(draw_list, size, pos, col, clip_rect, text_begin, text_end, wrap_width, cpu_fine_clip); // TODO_FROM_EXTERNAL-OPT: Would a 'goto begin' be better for code-gen?
         //return;
     }
 
@@ -6078,7 +6078,7 @@ void ImGui::RenderArrow(ImDrawList* draw_list, ImVec2 pos, ImU32 col, ImGuiDir d
 
 void ImGui::RenderBullet(ImDrawList* draw_list, ImVec2 pos, ImU32 col)
 {
-    // FIXME-OPT: This should be baked in font now that it's easier.
+    // TODO_FROM_EXTERNAL-OPT: This should be baked in font now that it's easier.
     float font_size = draw_list->_Data->FontSize;
     draw_list->AddCircleFilled(pos, font_size * 0.20f, col, (font_size < 22) ? 8 : (font_size < 40) ? 12 : 0); // Hardcode optimal/nice tessellation threshold
 }
@@ -6119,7 +6119,7 @@ static inline float ImAcos01(float x)
     //return (-0.69813170079773212f * x * x - 0.87266462599716477f) * x + 1.5707963267948966f; // Cheap approximation, may be enough for what we do.
 }
 
-// FIXME: Cleanup and move code to ImDrawList.
+// TODO_FROM_EXTERNAL: Cleanup and move code to ImDrawList.
 // - Before 2025-12-04: RenderRectFilledRangeH()   with 'float x_start_norm, float x_end_norm` <- normalized
 // - After  2025-12-04: RenderRectFilledInRangeH() with 'float x1, float x2'                   <- absolute coords!!
 void ImGui::RenderRectFilledInRangeH(ImDrawList* draw_list, const ImRect& rect, ImU32 col, float fill_x0, float fill_x1, float rounding)
@@ -6239,7 +6239,7 @@ void ImGui::RenderColorRectWithAlphaCheckerboard(ImDrawList* draw_list, ImVec2 p
                 float x1 = ImClamp((float)(int)x, p_min.x, p_max.x), x2 = ImMin((float)(int)(x + grid_step), p_max.x);
                 if (x2 <= x1)
                     continue;
-                ImDrawFlags cell_flags = ImDrawFlags_RoundCornersNone; // FIXME: Could use CalcRoundingFlagsForRectInRect()
+                ImDrawFlags cell_flags = ImDrawFlags_RoundCornersNone; // TODO_FROM_EXTERNAL: Could use CalcRoundingFlagsForRectInRect()
                 if (y1 <= p_min.y) { if (x1 <= p_min.x) cell_flags |= ImDrawFlags_RoundCornersTopLeft; if (x2 >= p_max.x) cell_flags |= ImDrawFlags_RoundCornersTopRight; }
                 if (y2 >= p_max.y) { if (x1 <= p_min.x) cell_flags |= ImDrawFlags_RoundCornersBottomLeft; if (x2 >= p_max.x) cell_flags |= ImDrawFlags_RoundCornersBottomRight; }
 

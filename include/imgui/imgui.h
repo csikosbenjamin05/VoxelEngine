@@ -855,7 +855,7 @@ namespace ImGui
     //    You may also call IsWindowAppearing() inside the later BeginPopup() scope if you need to prepare/compute data for the popup.
     //  - If not modal: they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
     //  - CloseCurrentPopup(): use inside the BeginPopup()/EndPopup() scope to close manually.
-    //  - CloseCurrentPopup() is called by default by Selectable()/MenuItem() when activated (FIXME: need some options).
+    //  - CloseCurrentPopup() is called by default by Selectable()/MenuItem() when activated (TODO_FROM_EXTERNAL: need some options).
     //  - Use ImGuiPopupFlags_NoOpenOverExistingPopup to avoid opening a popup if there's already one at the same level. This is equivalent to e.g. testing for !IsAnyPopupOpen() prior to OpenPopup().
     //  - Use IsWindowAppearing() after BeginPopup() to tell if a window just opened.
     IMGUI_API bool          OpenPopup(const char* str_id, ImGuiPopupFlags popup_flags = 0);                     // call to mark popup as open (don't call every frame!).
@@ -1336,7 +1336,7 @@ enum ImGuiTreeNodeFlags_
     ImGuiTreeNodeFlags_SpanLabelWidth       = 1 << 13,  // Narrow hit box + narrow hovering highlight, will only cover the label text.
     ImGuiTreeNodeFlags_SpanAllColumns       = 1 << 14,  // Frame will span all columns of its container table (label will still fit in current column)
     ImGuiTreeNodeFlags_LabelSpanAllColumns  = 1 << 15,  // Label will span all columns of its container table
-    //ImGuiTreeNodeFlags_NoScrollOnOpen     = 1 << 16,  // FIXME: TODO: Disable automatic scroll on TreePop() if node got just open and contents is not visible
+    //ImGuiTreeNodeFlags_NoScrollOnOpen     = 1 << 16,  // TODO_FROM_EXTERNAL: TODO_FROM_EXTERNAL: Disable automatic scroll on TreePop() if node got just open and contents is not visible
     ImGuiTreeNodeFlags_NavLeftJumpsToParent = 1 << 17,  // Nav: left arrow moves back to parent. This is processed in TreePop() when there's an unfulfilled Left nav request remaining.
     ImGuiTreeNodeFlags_CollapsingHeader     = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_NoAutoOpenOnLog,
 
@@ -1470,7 +1470,7 @@ enum ImGuiHoveredFlags_
     ImGuiHoveredFlags_NoPopupHierarchy              = 1 << 3,   // IsWindowHovered() only: Do not consider popup hierarchy (do not treat popup emitter as parent of popup) (when used with _ChildWindows or _RootWindow)
     //ImGuiHoveredFlags_DockHierarchy               = 1 << 4,   // IsWindowHovered() only: Consider docking hierarchy (treat dockspace host as parent of docked window) (when used with _ChildWindows or _RootWindow)
     ImGuiHoveredFlags_AllowWhenBlockedByPopup       = 1 << 5,   // Return true even if a popup window is normally blocking access to this item/window
-    //ImGuiHoveredFlags_AllowWhenBlockedByModal     = 1 << 6,   // Return true even if a modal popup window is normally blocking access to this item/window. FIXME-TODO: Unavailable yet.
+    //ImGuiHoveredFlags_AllowWhenBlockedByModal     = 1 << 6,   // Return true even if a modal popup window is normally blocking access to this item/window. TODO_FROM_EXTERNAL-TODO_FROM_EXTERNAL: Unavailable yet.
     ImGuiHoveredFlags_AllowWhenBlockedByActiveItem  = 1 << 7,   // Return true even if an active item is blocking access to this item/window. Useful for Drag and Drop patterns.
     ImGuiHoveredFlags_AllowWhenOverlappedByItem     = 1 << 8,   // IsItemHovered() only: Return true even if the item uses AllowOverlap mode and is overlapped by another hoverable item.
     ImGuiHoveredFlags_AllowWhenOverlappedByWindow   = 1 << 9,   // IsItemHovered() only: Return true even if the position is obstructed or overlapped by another window.
@@ -2183,7 +2183,7 @@ struct ImGuiTableSortSpecs
 // Sorting specification for one column of a table (sizeof == 12 bytes)
 struct ImGuiTableColumnSortSpecs
 {
-    ImGuiID                     ColumnUserID;       // User data for the column (if specified by a TableSetupColumn() call in the 'ImGuiID user_data' field). FIXME: Should be called 'UserData'..
+    ImGuiID                     ColumnUserID;       // User data for the column (if specified by a TableSetupColumn() call in the 'ImGuiID user_data' field). TODO_FROM_EXTERNAL: Should be called 'UserData'..
     ImS16                       ColumnIndex;        // Index of the column
     ImS16                       SortOrder;          // Index within parent ImGuiTableSortSpecs (always stored in order starting from 0, tables sorted on a single criteria will always have a 0 here)
     ImGuiSortDirection          SortDirection;      // ImGuiSortDirection_Ascending or ImGuiSortDirection_Descending
@@ -2393,8 +2393,8 @@ struct ImGuiStyle
     ImGuiHoveredFlags HoverFlagsForTooltipNav;  // Default flags when using IsItemHovered(ImGuiHoveredFlags_ForTooltip) or BeginItemTooltip()/SetItemTooltip() while using keyboard/gamepad.
 
     // [Internal]
-    float       _MainScale;                 // FIXME-WIP: Reference scale, as applied by ScaleAllSizes(). PLEASE DO NOT USE THIS FOR NOW.
-    float       _NextFrameFontSizeBase;     // FIXME: Temporary hack until we finish remaining work.
+    float       _MainScale;                 // TODO_FROM_EXTERNAL-WIP: Reference scale, as applied by ScaleAllSizes(). PLEASE DO NOT USE THIS FOR NOW.
+    float       _NextFrameFontSizeBase;     // TODO_FROM_EXTERNAL: Temporary hack until we finish remaining work.
 
     // Functions
     IMGUI_API   ImGuiStyle();
@@ -3017,7 +3017,7 @@ struct ImColor
     inline operator ImU32() const                                   { return ImGui::ColorConvertFloat4ToU32(Value); }
     inline operator ImVec4() const                                  { return Value; }
 
-    // FIXME-OBSOLETE: May need to obsolete/cleanup those helpers.
+    // TODO_FROM_EXTERNAL-OBSOLETE: May need to obsolete/cleanup those helpers.
     inline void    SetHSV(float h, float s, float v, float a = 1.0f){ ImGui::ColorConvertHSVtoRGB(h, s, v, Value.x, Value.y, Value.z); Value.w = a; }
     static ImColor HSV(float h, float s, float v, float a = 1.0f)   { float r, g, b; ImGui::ColorConvertHSVtoRGB(h, s, v, r, g, b); return ImColor(r, g, b, a); }
 };
@@ -3347,7 +3347,7 @@ struct ImDrawList
     ImVector<ImTextureRef>  _TextureStack;      // [Internal]
     ImVector<ImU8>          _CallbacksDataBuf;  // [Internal]
     float                   _FringeScale;       // [Internal] anti-alias fringe is scaled by this value, this helps to keep things sharp while zooming at vertex buffer content.
-    float                   _InvFringeScale;    // [internal] 1.0 / _FringeScale // FIXME: Consider renaming to _PixelDensity.
+    float                   _InvFringeScale;    // [internal] 1.0 / _FringeScale // TODO_FROM_EXTERNAL: Consider renaming to _PixelDensity.
     const char*             _OwnerName;         // Pointer to owner window's name for debugging
 
     // If you want to create ImDrawList instances, pass them ImGui::GetDrawListSharedData().
@@ -3633,7 +3633,7 @@ struct ImFontConfig
     ImVec2          GlyphOffset;            // 0, 0     // Offset (in pixels) all glyphs from this font input. Absolute value for default size, other sizes will scale this value.
     float           GlyphMinAdvanceX;       // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font. Absolute value for default size, other sizes will scale this value.
     float           GlyphMaxAdvanceX;       // FLT_MAX  // Maximum AdvanceX for glyphs
-    float           GlyphExtraAdvanceX;     // 0        // Extra spacing (in pixels) between glyphs. Please contact us if you are using this. // FIXME-NEWATLAS: Intentionally unscaled
+    float           GlyphExtraAdvanceX;     // 0        // Extra spacing (in pixels) between glyphs. Please contact us if you are using this. // TODO_FROM_EXTERNAL-NEWATLAS: Intentionally unscaled
     ImU32           FontNo;                 // 0        // Index of font within TTF/OTF file
     unsigned int    FontLoaderFlags;        // 0        // Settings for custom font builder. THIS IS BUILDER IMPLEMENTATION DEPENDENT. Leave as zero if unsure.
     //unsigned int  FontBuilderFlags;       // --       // [Renamed in 1.92] Use FontLoaderFlags.
@@ -3664,7 +3664,7 @@ struct ImFontGlyph
     float           AdvanceX;           // Horizontal distance to advance cursor/layout position.
     float           X0, Y0, X1, Y1;     // Glyph corners. Offsets from current cursor/layout position.
     float           U0, V0, U1, V1;     // Texture coordinates for the current value of ImFontAtlas->TexRef. Cached equivalent of calling GetCustomRect() with PackId.
-    int             PackId;             // [Internal] ImFontAtlasRectId value (FIXME: Cold data, could be moved elsewhere?)
+    int             PackId;             // [Internal] ImFontAtlasRectId value (TODO_FROM_EXTERNAL: Cold data, could be moved elsewhere?)
 
     ImFontGlyph()   { memset((void*)this, 0, sizeof(*this)); PackId = -1; }
 };
@@ -3825,7 +3825,7 @@ struct ImFontAtlas
     // Input
     ImFontAtlasFlags            Flags;              // Build flags (see ImFontAtlasFlags_)
     ImTextureFormat             TexDesiredFormat;   // Desired texture format (default to ImTextureFormat_RGBA32 but may be changed to ImTextureFormat_Alpha8).
-    int                         TexGlyphPadding;    // FIXME: Should be called "TexPackPadding". Padding between glyphs within texture in pixels. Defaults to 1. If your rendering method doesn't rely on bilinear filtering you may set this to 0 (will also need to set AntiAliasedLinesUseTex = false).
+    int                         TexGlyphPadding;    // TODO_FROM_EXTERNAL: Should be called "TexPackPadding". Padding between glyphs within texture in pixels. Defaults to 1. If your rendering method doesn't rely on bilinear filtering you may set this to 0 (will also need to set AntiAliasedLinesUseTex = false).
     int                         TexMinWidth;        // Minimum desired texture width. Must be a power of two. Default to 512.
     int                         TexMinHeight;       // Minimum desired texture height. Must be a power of two. Default to 128.
     int                         TexMaxWidth;        // Maximum desired texture width. Must be a power of two. Default to 8192.

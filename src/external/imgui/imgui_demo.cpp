@@ -589,7 +589,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
                 "Those flags are set by the backends (imgui_impl_xxx files) to specify their capabilities.\n"
                 "Here we expose them as read-only fields to avoid breaking interactions with your backend.");
 
-            // FIXME: Maybe we need a BeginReadonly() equivalent to keep label bright?
+            // TODO_FROM_EXTERNAL_FROM_EXTERNAL: Maybe we need a BeginReadonly() equivalent to keep label bright?
             ImGui::BeginDisabled();
             ImGui::CheckboxFlags("io.BackendFlags: HasGamepad",           &io.BackendFlags, ImGuiBackendFlags_HasGamepad);
             ImGui::CheckboxFlags("io.BackendFlags: HasMouseCursors",      &io.BackendFlags, ImGuiBackendFlags_HasMouseCursors);
@@ -1730,7 +1730,7 @@ static void DemoWindowWidgetsDragAndDrop()
         if (ImGui::TreeNode("Drag to reorder items (simple)"))
         {
             IMGUI_DEMO_MARKER("Widgets/Drag and Drop/Drag to reorder items (simple)");
-            // FIXME: there is temporary (usually single-frame) ID Conflict during reordering as a same item may be submitting twice.
+            // TODO_FROM_EXTERNAL_FROM_EXTERNAL: there is temporary (usually single-frame) ID Conflict during reordering as a same item may be submitting twice.
             // This code was always slightly faulty but in a way which was not easily noticeable.
             // Until we fix this, enable ImGuiItemFlags_AllowDuplicateId to disable detecting the issue.
             ImGui::PushItemFlag(ImGuiItemFlags_AllowDuplicateId, true);
@@ -1860,7 +1860,7 @@ static void DemoWindowWidgetsFonts()
         IMGUI_DEMO_MARKER("Widgets/Fonts");
         ImFontAtlas* atlas = ImGui::GetIO().Fonts;
         ImGui::ShowFontAtlas(atlas);
-        // FIXME-NEWATLAS: Provide a demo to add/create a procedural font?
+        // TODO_FROM_EXTERNAL_FROM_EXTERNAL-NEWATLAS: Provide a demo to add/create a procedural font?
         ImGui::TreePop();
     }
 }
@@ -2155,7 +2155,7 @@ static void DemoWindowWidgetsPlotting()
         }
 
         // Use functions to generate output
-        // FIXME: This is actually VERY awkward because current plot API only pass in indices.
+        // TODO_FROM_EXTERNAL_FROM_EXTERNAL: This is actually VERY awkward because current plot API only pass in indices.
         // We probably want an API passing floats and user provide sample rate/count.
         struct Funcs
         {
@@ -2520,7 +2520,7 @@ static void DemoWindowWidgetsSelectables()
                     char label[32];
                     sprintf(label, "Item %d", i);
                     ImGui::TableNextColumn();
-                    ImGui::Selectable(label, &selected[i]); // FIXME-TABLE: Selection overlap
+                    ImGui::Selectable(label, &selected[i]); // TODO_FROM_EXTERNAL_FROM_EXTERNAL-TABLE: Selection overlap
                 }
                 ImGui::EndTable();
             }
@@ -2630,7 +2630,7 @@ struct ExampleSelectionWithDeletion : ImGuiSelectionBasicStorage
     // - We cannot provide this logic in core Dear ImGui because we don't have access to selection data.
     // - We don't actually manipulate the ImVector<> here, only in ApplyDeletionPostLoop(), but using similar API for consistency and flexibility.
     // - Important: Deletion only works if the underlying ImGuiID for your items are stable: aka not depend on their index, but on e.g. item id/ptr.
-    // FIXME-MULTISELECT: Doesn't take account of the possibility focus target will be moved during deletion. Need refocus or scroll offset.
+    // TODO_FROM_EXTERNAL_FROM_EXTERNAL-MULTISELECT: Doesn't take account of the possibility focus target will be moved during deletion. Need refocus or scroll offset.
     int ApplyDeletionPreLoop(ImGuiMultiSelectIO* ms_io, int items_count)
     {
         if (Size == 0)
@@ -2708,7 +2708,7 @@ struct ExampleDualListBox
             ImGuiID item_id = Items[src][src_n];
             if (!Selections[src].Contains(item_id))
                 continue;
-            Items[src].erase(&Items[src][src_n]); // FIXME-OPT: Could be implemented more optimally (rebuild src items and swap)
+            Items[src].erase(&Items[src][src_n]); // TODO_FROM_EXTERNAL_FROM_EXTERNAL-OPT: Could be implemented more optimally (rebuild src items and swap)
             Items[dst].push_back(item_id);
             src_n--;
         }
@@ -2749,8 +2749,8 @@ struct ExampleDualListBox
             float child_height_0 = 0.0f;
             for (int side = 0; side < 2; side++)
             {
-                // FIXME-MULTISELECT: Dual List Box: Add context menus
-                // FIXME-NAV: Using ImGuiWindowFlags_NavFlattened exhibit many issues.
+                // TODO_FROM_EXTERNAL_FROM_EXTERNAL-MULTISELECT: Dual List Box: Add context menus
+                // TODO_FROM_EXTERNAL_FROM_EXTERNAL-NAV: Using ImGuiWindowFlags_NavFlattened exhibit many issues.
                 ImVector<ImGuiID>& items = Items[side];
                 ImGuiSelectionBasicStorage& selection = Selections[side];
 
@@ -2788,10 +2788,10 @@ struct ExampleDualListBox
                         ImGui::Selectable(ExampleNames[item_id], item_is_selected, ImGuiSelectableFlags_AllowDoubleClick);
                         if (ImGui::IsItemFocused())
                         {
-                            // FIXME-MULTISELECT: Dual List Box: Transfer focus
+                            // TODO_FROM_EXTERNAL_FROM_EXTERNAL-MULTISELECT: Dual List Box: Transfer focus
                             if (ImGui::IsKeyPressed(ImGuiKey_Enter) || ImGui::IsKeyPressed(ImGuiKey_KeypadEnter))
                                 request_move_selected = side;
-                            if (ImGui::IsMouseDoubleClicked(0)) // FIXME-MULTISELECT: Double-click on multi-selection?
+                            if (ImGui::IsMouseDoubleClicked(0)) // TODO_FROM_EXTERNAL_FROM_EXTERNAL-MULTISELECT: Double-click on multi-selection?
                                 request_move_selected = side;
                         }
                     }
@@ -2824,7 +2824,7 @@ struct ExampleDualListBox
             if (request_move_selected != -1)
                 MoveSelected(request_move_selected, request_move_selected ^ 1);
 
-            // FIXME-MULTISELECT: Support action from outside
+            // TODO_FROM_EXTERNAL_FROM_EXTERNAL-MULTISELECT: Support action from outside
             /*
             if (OptKeepSorted == false)
             {
@@ -3237,7 +3237,7 @@ static void DemoWindowWidgetsSelectionAndMultiSelect(ImGuiDemoWindowData* demo_d
                 }
 
                 // When closing a node: 1) close and unselect all child nodes, 2) select parent if any child was selected.
-                // FIXME: This is currently handled by user logic but I'm hoping to eventually provide tree node
+                // TODO_FROM_EXTERNAL_FROM_EXTERNAL: This is currently handled by user logic but I'm hoping to eventually provide tree node
                 // features to do this automatically, e.g. a ImGuiTreeNodeFlags_AutoCloseChildNodes etc.
                 static int TreeCloseAndUnselectChildNodes(ExampleTreeNode* node, ImGuiSelectionBasicStorage* selection, int depth = 0)
                 {
@@ -6095,7 +6095,7 @@ static void DemoWindowTables()
         // Here we use ImGuiTableFlags_SizingFixedFit (even though _ScrollX is not set)
         // So columns will adopt the "Fixed" policy and will maintain a fixed width regardless of the whole available width (unless table is small)
         // If there is not enough available width to fit all columns, they will however be resized down.
-        // FIXME-TABLE: Providing a stretch-on-init would make sense especially for tables which don't have saved settings
+        // TODO_FROM_EXTERNAL_FROM_EXTERNAL-TABLE: Providing a stretch-on-init would make sense especially for tables which don't have saved settings
         HelpMarker(
             "Using _Resizable + _SizingFixedFit flags.\n"
             "Fixed-width columns generally makes more sense if you want to use horizontal scrolling.\n\n"
@@ -6296,7 +6296,7 @@ static void DemoWindowTables()
         }
 
         // Second example: set style.CellPadding to (0.0) or a custom value.
-        // FIXME-TABLE: Vertical border effectively not displayed the same way as horizontal one...
+        // TODO_FROM_EXTERNAL_FROM_EXTERNAL-TABLE: Vertical border effectively not displayed the same way as horizontal one...
         HelpMarker("Setting style.CellPadding to (0,0) or a custom value.");
         static ImGuiTableFlags flags2 = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
         static ImVec2 cell_padding(0.0f, 0.0f);
@@ -6604,7 +6604,7 @@ static void DemoWindowTables()
             {
                 ImGui::TableNextColumn();
                 ImGui::PushID(column);
-                ImGui::AlignTextToFramePadding(); // FIXME-TABLE: Workaround for wrong text baseline propagation across columns
+                ImGui::AlignTextToFramePadding(); // TODO_FROM_EXTERNAL_FROM_EXTERNAL-TABLE: Workaround for wrong text baseline propagation across columns
                 ImGui::Text("'%s'", column_names[column]);
                 ImGui::Spacing();
                 ImGui::Text("Input flags:");
@@ -7114,7 +7114,7 @@ static void DemoWindowTables()
             ImGui::TableSetupColumn("Cherry");
 
             // Dummy entire-column selection storage
-            // FIXME: It would be nice to actually demonstrate full-featured selection using those checkbox.
+            // TODO_FROM_EXTERNAL_FROM_EXTERNAL: It would be nice to actually demonstrate full-featured selection using those checkbox.
             static bool column_selected[3] = {};
 
             // Instead of calling TableHeadersRow() we'll submit custom headers ourselves.
@@ -7488,7 +7488,7 @@ static void DemoWindowTables()
         static bool show_headers = true;
         static bool show_wrapped_text = false;
         //static ImGuiTextFilter filter;
-        //ImGui::SetNextItemOpen(true, ImGuiCond_Once); // FIXME-TABLE: Enabling this results in initial clipped first pass on table which tend to affect column sizing
+        //ImGui::SetNextItemOpen(true, ImGuiCond_Once); // TODO_FROM_EXTERNAL_FROM_EXTERNAL-TABLE: Enabling this results in initial clipped first pass on table which tend to affect column sizing
         if (ImGui::TreeNode("Options"))
         {
             // Make the UI compact because there are so many fields
@@ -7668,7 +7668,7 @@ static void DemoWindowTables()
                 ImGui::TableHeadersRow();
 
             // Show data
-            // FIXME-TABLE FIXME-NAV: How we can get decent up/down even though we have the buttons here?
+            // TODO_FROM_EXTERNAL_FROM_EXTERNAL-TABLE TODO_FROM_EXTERNAL_FROM_EXTERNAL-NAV: How we can get decent up/down even though we have the buttons here?
 #if 1
             // Demonstrate using clipper for large vertical lists
             ImGuiListClipper clipper;
@@ -8031,7 +8031,7 @@ static void DemoWindowInputs()
             ImGuiKey start_key = ImGuiKey_NamedKey_BEGIN;
             ImGui::Text("Keys down:");         for (ImGuiKey key = start_key; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) { if (funcs::IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue; ImGui::SameLine(); ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key); }
             ImGui::Text("Keys mods: %s%s%s%s", io.KeyCtrl ? "CTRL " : "", io.KeyShift ? "SHIFT " : "", io.KeyAlt ? "ALT " : "", io.KeySuper ? "SUPER " : "");
-            ImGui::Text("Chars queue:");       for (int i = 0; i < io.InputQueueCharacters.Size; i++) { ImWchar c = io.InputQueueCharacters[i]; ImGui::SameLine();  ImGui::Text("\'%c\' (0x%04X)", (c > ' ' && c <= 255) ? (char)c : '?', c); } // FIXME: We should convert 'c' to UTF-8 here but the functions are not public.
+            ImGui::Text("Chars queue:");       for (int i = 0; i < io.InputQueueCharacters.Size; i++) { ImWchar c = io.InputQueueCharacters[i]; ImGui::SameLine();  ImGui::Text("\'%c\' (0x%04X)", (c > ' ' && c <= 255) ? (char)c : '?', c); } // TODO_FROM_EXTERNAL_FROM_EXTERNAL: We should convert 'c' to UTF-8 here but the functions are not public.
 
             ImGui::TreePop();
         }
@@ -8507,7 +8507,7 @@ void ImGui::ShowAboutWindow(bool* p_open)
 // Demo helper function to select among default colors. See ShowStyleEditor() for more advanced options.
 bool ImGui::ShowStyleSelector(const char* label)
 {
-    // FIXME: This is a bit tricky to get right as style are functions, they don't register a name nor the fact that one is active.
+    // TODO_FROM_EXTERNAL_FROM_EXTERNAL: This is a bit tricky to get right as style are functions, they don't register a name nor the fact that one is active.
     // So we keep track of last active one among our limited selection.
     static int style_idx = -1;
     const char* style_names[] = { "Dark", "Light", "Classic" };
@@ -8582,7 +8582,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
             ref_saved_style = style;
         ShowFontSelector("Fonts##Selector");
         if (DragFloat("FontSizeBase", &style.FontSizeBase, 0.20f, 5.0f, 100.0f, "%.0f"))
-            style._NextFrameFontSizeBase = style.FontSizeBase; // FIXME: Temporary hack until we finish remaining work.
+            style._NextFrameFontSizeBase = style.FontSizeBase; // TODO_FROM_EXTERNAL_FROM_EXTERNAL: Temporary hack until we finish remaining work.
         SameLine(0.0f, 0.0f); Text(" (out %.2f)", GetFontSize());
         DragFloat("FontScaleMain", &style.FontScaleMain, 0.02f, 0.5f, 4.0f);
         //BeginDisabled(GetIO().ConfigDpiScaleFonts);
@@ -9106,7 +9106,7 @@ struct ExampleAppConsole
 
     void    AddLog(const char* fmt, ...) IM_FMTARGS(2)
     {
-        // FIXME-OPT
+        // TODO_FROM_EXTERNAL_FROM_EXTERNAL-OPT
         char buf[1024];
         va_list args;
         va_start(args, fmt);
@@ -9141,7 +9141,7 @@ struct ExampleAppConsole
             "implementation may want to store entries along with extra data such as timestamp, emitter, etc.");
         ImGui::TextWrapped("Enter 'HELP' for help.");
 
-        // TODO: display items starting from the bottom
+        // TODO_FROM_EXTERNAL: display items starting from the bottom
 
         if (ImGui::SmallButton("Add Debug Text"))  { AddLog("%d some text", Items.Size); AddLog("some more text"); AddLog("display very important message here!"); }
         ImGui::SameLine();
@@ -10014,8 +10014,8 @@ static void ShowExampleAppConstrainedResize(bool* p_open)
     struct CustomConstraints
     {
         // Helper functions to demonstrate programmatic constraints
-        // FIXME: This doesn't take account of decoration size (e.g. title bar), library should make this easier.
-        // FIXME: None of the three demos works consistently when resizing from borders.
+        // TODO_FROM_EXTERNAL_FROM_EXTERNAL: This doesn't take account of decoration size (e.g. title bar), library should make this easier.
+        // TODO_FROM_EXTERNAL_FROM_EXTERNAL: None of the three demos works consistently when resizing from borders.
         static void AspectRatio(ImGuiSizeCallbackData* data)
         {
             float aspect_ratio = *(float*)data->UserData;
@@ -11104,7 +11104,7 @@ struct ExampleAssetsBrowser
                 ms_flags |= ImGuiMultiSelectFlags_SelectOnClickAlways; // Rarely used: Prevents Drag and Drop from being used on multiple-selection, but allows e.g. BoxSelect to always reselect even when clicking inside an existing selection.
 
             // - Enable keyboard wrapping on X axis
-            // (FIXME-MULTISELECT: We haven't designed/exposed a general nav wrapping api yet, so this flag is provided as a courtesy to avoid doing:
+            // (TODO_FROM_EXTERNAL_FROM_EXTERNAL-MULTISELECT: We haven't designed/exposed a general nav wrapping api yet, so this flag is provided as a courtesy to avoid doing:
             //    ImGui::NavMoveRequestTryWrapping(ImGui::GetCurrentWindow(), ImGuiNavMoveFlags_WrapX);
             // When we finish implementing a more general API for this, we will obsolete this flag in favor of the new system)
             ms_flags |= ImGuiMultiSelectFlags_NavWrapX;
@@ -11250,7 +11250,7 @@ struct ExampleAssetsBrowser
                 if (fabsf(ZoomWheelAccum) >= 1.0f)
                 {
                     // Calculate hovered item index from mouse location
-                    // FIXME: Locking aiming on 'hovered_item_idx' (with a cool-down timer) would ensure zoom keeps on it.
+                    // TODO_FROM_EXTERNAL_FROM_EXTERNAL: Locking aiming on 'hovered_item_idx' (with a cool-down timer) would ensure zoom keeps on it.
                     const float hovered_item_nx = (io.MousePos.x - start_pos.x + LayoutItemSpacing * 0.5f) / LayoutItemStep.x;
                     const float hovered_item_ny = (io.MousePos.y - start_pos.y + LayoutItemSpacing * 0.5f) / LayoutItemStep.y;
                     const int hovered_item_idx = ((int)hovered_item_ny * LayoutColumnCount) + (int)hovered_item_nx;

@@ -535,7 +535,7 @@ inline ImVec2 ImTrunc(const ImVec2& v)                                  { return
 inline float  ImFloor(float f)                                          { return (float)((f >= 0 || (float)(int)f == f) ? (int)f : (int)f - 1); } // Decent replacement for floorf()
 inline ImVec2 ImFloor(const ImVec2& v)                                  { return ImVec2(ImFloor(v.x), ImFloor(v.y)); }
 inline float  ImTrunc64(float f)                                        { return (float)(ImS64)(f); }
-inline float  ImRound64(float f)                                        { return (float)(ImS64)(f + 0.5f); } // FIXME: Positive values only.
+inline float  ImRound64(float f)                                        { return (float)(ImS64)(f + 0.5f); } // TODO_FROM_EXTERNAL: Positive values only.
 inline float  ImCeilFast(float f)                                       { int i = (int)f; return (float)(i + (f > (float)i)); } // Consider using the the bit-hack version (search for "0x1p120f").
 inline int    ImModPositive(int a, int b)                               { return (a + b) % b; }
 inline float  ImDot(const ImVec2& a, const ImVec2& b)                   { return a.x * b.x + a.y * b.y; }
@@ -848,7 +848,7 @@ struct ImGuiPackedDate
     ImGuiPackedDate(int yyyymmdd)               { Year = (ImU16)((yyyymmdd / 10000) - 2000); Month = (ImU16)((yyyymmdd / 100) % 100); Day = (ImU16)(yyyymmdd % 100); } // Pack
     bool                IsValid()               { return (Year && Month && Day); }
     int                 Unpack() const          { return (Year && Month && Day) ? ((Year + 2000) * 10000) + (Month * 100) + Day : 0; }      // Unpack
-    void                SubtractMonths(int m)   { while (m > 0) { Year -= Month == 1; Month = (Month == 1) ? 12 : Month - 1; m--; } }       // FIXME-OPT: Stupid but enough for what we do with it.
+    void                SubtractMonths(int m)   { while (m > 0) { Year -= Month == 1; Month = (Month == 1) ? 12 : Month - 1; m--; } }       // TODO_FROM_EXTERNAL-OPT: Stupid but enough for what we do with it.
 };
 
 // Helper: ImGuiStorage
@@ -1070,10 +1070,10 @@ enum ImGuiButtonFlagsPrivate_
     ImGuiButtonFlags_FlattenChildren        = 1 << 11,  // allow interactions even if a child window is overlapping
     //ImGuiButtonFlags_DontClosePopups      = 1 << 13,  // disable automatically closing parent popup on press
     //ImGuiButtonFlags_Disabled             = 1 << 14,  // disable interactions -> use BeginDisabled() or ImGuiItemFlags_Disabled
-    ImGuiButtonFlags_AlignTextBaseLine      = 1 << 15,  // vertically align button to match text baseline - ButtonEx() only // FIXME: Should be removed and handled by SmallButton(), not possible currently because of DC.CursorPosPrevLine
+    ImGuiButtonFlags_AlignTextBaseLine      = 1 << 15,  // vertically align button to match text baseline - ButtonEx() only // TODO_FROM_EXTERNAL: Should be removed and handled by SmallButton(), not possible currently because of DC.CursorPosPrevLine
     ImGuiButtonFlags_NoKeyModsAllowed       = 1 << 16,  // disable mouse interaction if a key modifier is held
     ImGuiButtonFlags_NoHoldingActiveId      = 1 << 17,  // don't set ActiveId while holding the mouse (ImGuiButtonFlags_PressedOnClick only)
-    ImGuiButtonFlags_NoNavFocus             = 1 << 18,  // don't override navigation focus when activated (FIXME: this is essentially used every time an item uses ImGuiItemFlags_NoNav, but because legacy specs don't requires LastItemData to be set ButtonBehavior(), we can't poll g.LastItemData.ItemFlags)
+    ImGuiButtonFlags_NoNavFocus             = 1 << 18,  // don't override navigation focus when activated (TODO_FROM_EXTERNAL: this is essentially used every time an item uses ImGuiItemFlags_NoNav, but because legacy specs don't requires LastItemData to be set ButtonBehavior(), we can't poll g.LastItemData.ItemFlags)
     ImGuiButtonFlags_NoHoveredOnFocus       = 1 << 19,  // don't report as hovered when nav focus is on this item
     ImGuiButtonFlags_NoSetKeyOwner          = 1 << 20,  // don't set key/input owner on the initial click (note: mouse buttons are keys! often, the key in question will be ImGuiKey_MouseLeft!)
     ImGuiButtonFlags_NoTestKeyOwner         = 1 << 21,  // don't test key/input owner when polling the key (note: mouse buttons are keys! often, the key in question will be ImGuiKey_MouseLeft!)
@@ -1103,7 +1103,7 @@ enum ImGuiSelectableFlagsPrivate_
     ImGuiSelectableFlags_NoHoldingActiveID      = 1 << 20,
     ImGuiSelectableFlags_SelectOnClick          = 1 << 22,  // Override button behavior to react on Click (default is Click+Release)
     ImGuiSelectableFlags_SelectOnRelease        = 1 << 23,  // Override button behavior to react on Release (default is Click+Release)
-    ImGuiSelectableFlags_SpanAvailWidth         = 1 << 24,  // Span all avail width even if we declared less for layout purpose. FIXME: We may be able to remove this (added in 6251d379, 2bcafc86 for menus)
+    ImGuiSelectableFlags_SpanAvailWidth         = 1 << 24,  // Span all avail width even if we declared less for layout purpose. TODO_FROM_EXTERNAL: We may be able to remove this (added in 6251d379, 2bcafc86 for menus)
     ImGuiSelectableFlags_SetNavIdOnHover        = 1 << 25,  // Set Nav/Focus ID on mouse hover (used by MenuItem)
     ImGuiSelectableFlags_NoPadWithHalfSpacing   = 1 << 26,  // Disable padding each side with ItemSpacing * 0.5f
     ImGuiSelectableFlags_NoSetKeyOwner          = 1 << 27,  // Don't set key/input owner on the initial click (note: mouse buttons are keys! often, the key in question will be ImGuiKey_MouseLeft!)
@@ -1113,8 +1113,8 @@ enum ImGuiSelectableFlagsPrivate_
 enum ImGuiTreeNodeFlagsPrivate_
 {
     ImGuiTreeNodeFlags_NoNavFocus                 = 1 << 27,// Don't claim nav focus when interacting with this item (#8551)
-    ImGuiTreeNodeFlags_ClipLabelForTrailingButton = 1 << 28,// FIXME-WIP: Hard-coded for CollapsingHeader()
-    ImGuiTreeNodeFlags_UpsideDownArrow            = 1 << 29,// FIXME-WIP: Turn Down arrow into an Up arrow, for reversed trees (#6517)
+    ImGuiTreeNodeFlags_ClipLabelForTrailingButton = 1 << 28,// TODO_FROM_EXTERNAL-WIP: Hard-coded for CollapsingHeader()
+    ImGuiTreeNodeFlags_UpsideDownArrow            = 1 << 29,// TODO_FROM_EXTERNAL-WIP: Turn Down arrow into an Up arrow, for reversed trees (#6517)
     ImGuiTreeNodeFlags_OpenOnMask_                = ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow,
     ImGuiTreeNodeFlags_DrawLinesMask_             = ImGuiTreeNodeFlags_DrawLinesNone | ImGuiTreeNodeFlags_DrawLinesFull | ImGuiTreeNodeFlags_DrawLinesToNodes,
 };
@@ -1128,7 +1128,7 @@ enum ImGuiSeparatorFlags_
 };
 
 // Flags for FocusWindow(). This is not called ImGuiFocusFlags to avoid confusion with public-facing ImGuiFocusedFlags.
-// FIXME: Once we finishing replacing more uses of GetTopMostPopupModal()+IsWindowWithinBeginStackOf()
+// TODO_FROM_EXTERNAL: Once we finishing replacing more uses of GetTopMostPopupModal()+IsWindowWithinBeginStackOf()
 // and FindBlockingModal() with this, we may want to change the flag to be opt-out instead of opt-in.
 enum ImGuiFocusRequestFlags_
 {
@@ -1149,7 +1149,7 @@ enum ImGuiTooltipFlags_
     ImGuiTooltipFlags_OverridePrevious          = 1 << 1,   // Clear/ignore previously submitted tooltip (defaults to append)
 };
 
-// FIXME: this is in development, not exposed/functional as a generic feature yet.
+// TODO_FROM_EXTERNAL: this is in development, not exposed/functional as a generic feature yet.
 // Horizontal/Vertical enums are fixed to 0/1 so they may be used to index ImVec2
 enum ImGuiLayoutType_
 {
@@ -1569,7 +1569,7 @@ enum ImGuiInputSource : int
     ImGuiInputSource_COUNT
 };
 
-// FIXME: Structures in the union below need to be declared as anonymous unions appears to be an extension?
+// TODO_FROM_EXTERNAL: Structures in the union below need to be declared as anonymous unions appears to be an extension?
 // Using ImVec2() would fail on Clang 'union member 'MousePos' has a non-trivial default constructor'
 struct ImGuiInputEventMousePos      { float PosX, PosY; ImGuiMouseSource MouseSource; };
 struct ImGuiInputEventMouseWheel    { float WheelX, WheelY; ImGuiMouseSource MouseSource; };
@@ -1729,7 +1729,7 @@ enum ImGuiActivateFlags_
 };
 
 // Early work-in-progress API for ScrollToItem()
-// FIXME: Missing flags to request making both edges visible when possible.
+// TODO_FROM_EXTERNAL: Missing flags to request making both edges visible when possible.
 enum ImGuiScrollFlags_
 {
     ImGuiScrollFlags_None                   = 0,
@@ -1769,7 +1769,7 @@ enum ImGuiNavMoveFlags_
     ImGuiNavMoveFlags_WrapMask_             = ImGuiNavMoveFlags_LoopX | ImGuiNavMoveFlags_LoopY | ImGuiNavMoveFlags_WrapX | ImGuiNavMoveFlags_WrapY,
     ImGuiNavMoveFlags_AllowCurrentNavId     = 1 << 4,   // Allow scoring and considering the current NavId as a move target candidate. This is used when the move source is offset (e.g. pressing PageDown actually needs to send a Up move request, if we are pressing PageDown from the bottom-most item we need to stay in place)
     ImGuiNavMoveFlags_AlsoScoreVisibleSet   = 1 << 5,   // Store alternate result in NavMoveResultLocalVisible that only comprise elements that are already fully visible (used by PageUp/PageDown)
-    ImGuiNavMoveFlags_ScrollToEdgeY         = 1 << 6,   // Force scrolling to min/max (used by Home/End) // FIXME-NAV: Aim to remove or reword as ImGuiScrollFlags
+    ImGuiNavMoveFlags_ScrollToEdgeY         = 1 << 6,   // Force scrolling to min/max (used by Home/End) // TODO_FROM_EXTERNAL-NAV: Aim to remove or reword as ImGuiScrollFlags
     ImGuiNavMoveFlags_Forwarded             = 1 << 7,
     ImGuiNavMoveFlags_DebugNoResult         = 1 << 8,   // Dummy scoring for debug purpose, don't apply result
     ImGuiNavMoveFlags_FocusApi              = 1 << 9,   // Requests from focus API can land/focus/activate items even if they are marked with _NoTabStop (see NavProcessItemForTabbingRequest() for details)
@@ -2422,7 +2422,7 @@ struct ImGuiContext
     ImGuiKeyChord           NavMoveKeyMods;
     ImGuiDir                NavMoveDir;                         // Direction of the move request (left/right/up/down)
     ImGuiDir                NavMoveDirForDebug;
-    ImGuiDir                NavMoveClipDir;                     // FIXME-NAV: Describe the purpose of this better. Might want to rename?
+    ImGuiDir                NavMoveClipDir;                     // TODO_FROM_EXTERNAL-NAV: Describe the purpose of this better. Might want to rename?
     ImRect                  NavScoringRect;                     // Rectangle used for scoring, in screen space. Based of window->NavRectRel[], modified for directional navigation scoring.
     ImRect                  NavScoringNoClipRect;               // Some nav operations (such as PageUp/PageDown) enforce a region which clipper will attempt to always keep submitted. Unset/invalid if inverted.
     int                     NavScoringDebugCount;               // Metrics for debugging
@@ -2566,7 +2566,7 @@ struct ImGuiContext
     ImGuiPlatformImeData    PlatformImeDataPrev;                // Previous frame data. When changed we call the platform_io.Platform_SetImeDataFn() handler.
 
     // Extensions
-    // FIXME: We could provide an API to register one slot in an array held in ImGuiContext?
+    // TODO_FROM_EXTERNAL: We could provide an API to register one slot in an array held in ImGuiContext?
     ImVector<ImTextureData*> UserTextures;                      // List of textures created/managed by user or third-party extension. Automatically appended into platform_io.Textures[].
 
     // Settings
@@ -2675,7 +2675,7 @@ struct IMGUI_API ImGuiWindowTempData
     bool                    IsSameLine;
     bool                    IsSetPos;
     ImVec1                  Indent;                 // Indentation / start position from left of window (increased by TreePush/TreePop, etc.)
-    ImVec1                  ColumnsOffset;          // Offset to the current column (if ColumnsCurrent > 0). FIXME: This and the above should be a stack to allow use cases like Tree->Column->Tree. Need revamp columns API.
+    ImVec1                  ColumnsOffset;          // Offset to the current column (if ColumnsCurrent > 0). TODO_FROM_EXTERNAL: This and the above should be a stack to allow use cases like Tree->Column->Tree. Need revamp columns API.
     ImVec1                  GroupOffset;
     ImVec2                  CursorStartPosLossyness;// Record the loss of precision of CursorStartPos due to really large scrolling amount. This is used by clipper to compensate and fix the most common use case of large scroll area.
 
@@ -2688,7 +2688,7 @@ struct IMGUI_API ImGuiWindowTempData
     bool                    NavWindowHasScrollY;    // Set per window when scrolling can be used (== ScrollMax.y > 0.0f)
 
     // Miscellaneous
-    bool                    MenuBarAppending;       // FIXME: Remove this
+    bool                    MenuBarAppending;       // TODO_FROM_EXTERNAL: Remove this
     ImVec2                  MenuBarOffset;          // MenuBarOffset.x is sort of equivalent of a per-layer CursorPos.x, saved/restored as we switch to the menu bar. The only situation when MenuBarOffset.y is > 0 if when (SafeAreaPadding.y > FramePadding.y), often used on TVs.
     ImGuiMenuColumns        MenuColumns;            // Simplified columns storage for menu items measurement
     int                     TreeDepth;              // Current tree depth.
@@ -2790,9 +2790,9 @@ struct IMGUI_API ImGuiWindow
     ImRect                  InnerRect;                          // Inner rectangle (omit title bar, menu bar, scroll bar)
     ImRect                  InnerClipRect;                      // == InnerRect shrunk by WindowPadding*0.5f on each side, clipped within viewport or parent clip rect.
     ImRect                  WorkRect;                           // Initially covers the whole scrolling region. Reduced by containers e.g columns/tables when active. Shrunk by WindowPadding*1.0f on each side. This is meant to replace ContentRegionRect over time (from 1.71+ onward).
-    ImRect                  ParentWorkRect;                     // Backup of WorkRect before entering a container such as columns/tables. Used by e.g. SpanAllColumns functions to easily access. Stacked containers are responsible for maintaining this. // FIXME-WORKRECT: Could be a stack?
+    ImRect                  ParentWorkRect;                     // Backup of WorkRect before entering a container such as columns/tables. Used by e.g. SpanAllColumns functions to easily access. Stacked containers are responsible for maintaining this. // TODO_FROM_EXTERNAL-WORKRECT: Could be a stack?
     ImRect                  ClipRect;                           // Current clipping/scissoring rectangle, evolve as we are using PushClipRect(), etc. == DrawList->clip_rect_stack.back().
-    ImRect                  ContentRegionRect;                  // FIXME: This is currently confusing/misleading. It is essentially WorkRect but not handling of scrolling. We currently rely on it as right/bottom aligned sizing operation need some size to rely on.
+    ImRect                  ContentRegionRect;                  // TODO_FROM_EXTERNAL: This is currently confusing/misleading. It is essentially WorkRect but not handling of scrolling. We currently rely on it as right/bottom aligned sizing operation need some size to rely on.
     ImVec2ih                HitTestHoleSize;                    // Define an optional rectangular hole where mouse will pass-through the window.
     ImVec2ih                HitTestHoleOffset;
 
@@ -2853,7 +2853,7 @@ enum ImGuiTabBarFlagsPrivate_
 {
     ImGuiTabBarFlags_DockNode                   = 1 << 20,  // Part of a dock node [we don't use this in the master branch but it facilitate branch syncing to keep this around]
     ImGuiTabBarFlags_IsFocused                  = 1 << 21,
-    ImGuiTabBarFlags_SaveSettings               = 1 << 22,  // FIXME: Settings are handled by the docking system, this only request the tab bar to mark settings dirty when reordering tabs
+    ImGuiTabBarFlags_SaveSettings               = 1 << 22,  // TODO_FROM_EXTERNAL: Settings are handled by the docking system, this only request the tab bar to mark settings dirty when reordering tabs
 };
 
 // Extend ImGuiTabItemFlags_
@@ -2948,7 +2948,7 @@ struct ImGuiTableColumn
     float                   MaxX;
     float                   WidthRequest;                   // Master width absolute value when !(Flags & _WidthStretch). When Stretch this is derived every frame from StretchWeight in TableUpdateLayout()
     float                   WidthAuto;                      // Automatic width
-    float                   WidthMax;                       // Maximum width (FIXME: overwritten by each instance)
+    float                   WidthMax;                       // Maximum width (TODO_FROM_EXTERNAL: overwritten by each instance)
     float                   StretchWeight;                  // Master width weight when (Flags & _WidthStretch). Often around ~1.0f initially.
     float                   InitStretchWeightOrWidth;       // Value passed to TableSetupColumn(). For Width it is a content width (_without padding_).
     ImRect                  ClipRect;                       // Clipping rectangle for the column
@@ -3046,7 +3046,7 @@ struct ImGuiTableInstanceData
 {
     ImGuiID                     TableInstanceID;
     float                       LastOuterHeight;            // Outer height from last frame
-    float                       LastTopHeadersRowHeight;    // Height of first consecutive header rows from last frame (FIXME: this is used assuming consecutive headers are in same frozen set)
+    float                       LastTopHeadersRowHeight;    // Height of first consecutive header rows from last frame (TODO_FROM_EXTERNAL: this is used assuming consecutive headers are in same frozen set)
     float                       LastFrozenHeight;           // Height of frozen section from last frame
     int                         HoveredRowLast;             // Index of row which was hovered last frame.
     int                         HoveredRowNext;             // Index of row hovered this frame, set after encountering it.
@@ -3118,9 +3118,9 @@ struct IMGUI_API ImGuiTable
     ImGuiTextBuffer             ColumnsNames;               // Contiguous buffer holding columns names
     ImDrawListSplitter*         DrawSplitter;               // Shortcut to TempData->DrawSplitter while in table. Isolate draw commands per columns to avoid switching clip rect constantly
     ImGuiTableInstanceData      InstanceDataFirst;
-    ImVector<ImGuiTableInstanceData>    InstanceDataExtra;  // FIXME-OPT: Using a small-vector pattern would be good.
+    ImVector<ImGuiTableInstanceData>    InstanceDataExtra;  // TODO_FROM_EXTERNAL-OPT: Using a small-vector pattern would be good.
     ImGuiTableColumnSortSpecs   SortSpecsSingle;
-    ImVector<ImGuiTableColumnSortSpecs> SortSpecsMulti;     // FIXME-OPT: Using a small-vector pattern would be good.
+    ImVector<ImGuiTableColumnSortSpecs> SortSpecsMulti;     // TODO_FROM_EXTERNAL-OPT: Using a small-vector pattern would be good.
     ImGuiTableSortSpecs         SortSpecs;                  // Public facing sorts specs, this is what we return in TableGetSortSpecs()
     ImGuiTableColumnIdx         SortSpecsCount;
     ImGuiTableColumnIdx         ColumnsEnabledCount;        // Number of enabled columns (<= ColumnsCount)
@@ -3182,7 +3182,7 @@ struct IMGUI_API ImGuiTable
 // Transient data that are only needed between BeginTable() and EndTable(), those buffers are shared (1 per level of stacked table).
 // - Accessing those requires chasing an extra pointer so for very frequently used data we leave them in the main table structure.
 // - We also leave out of this structure data that tend to be particularly useful for debugging/metrics.
-// FIXME-TABLE: more transient data could be stored in a stacked ImGuiTableTempData: e.g. SortSpecs.
+// TODO_FROM_EXTERNAL-TABLE: more transient data could be stored in a stacked ImGuiTableTempData: e.g. SortSpecs.
 // sizeof() ~ 176 bytes.
 struct IMGUI_API ImGuiTableTempData
 {
@@ -3190,7 +3190,7 @@ struct IMGUI_API ImGuiTableTempData
     int                         TableIndex;                 // Index in g.Tables.Buf[] pool
     float                       LastTimeActive;             // Last timestamp this structure was used
     float                       AngledHeadersExtraWidth;    // Used in EndTable()
-    ImVector<ImGuiTableHeaderData> AngledHeadersRequests;   // Used in TableAngledHeadersRow() // FIXME: Single instance is enough?
+    ImVector<ImGuiTableHeaderData> AngledHeadersRequests;   // Used in TableAngledHeadersRow() // TODO_FROM_EXTERNAL: Single instance is enough?
 
     // Topology change
     ImVector<ImGuiTableReconcileColumnData> ReconcileColumnsRequests; // Used in TableSetupColumn(), TableUpdateLayout(). Cleared every frame.
@@ -3348,7 +3348,7 @@ namespace ImGui
     // - You are calling ImGui functions after ImGui::EndFrame()/ImGui::Render() and before the next ImGui::NewFrame(), which is also illegal.
     IMGUI_API ImGuiIO&         GetIO(ImGuiContext* ctx);
     IMGUI_API ImGuiPlatformIO& GetPlatformIO(ImGuiContext* ctx);
-    inline    float         GetScale()                  { ImGuiContext& g = *GImGui; return g.Style._MainScale; } // FIXME-DPI: I don't want to formalize this just yet. Because reasons. Please don't use.
+    inline    float         GetScale()                  { ImGuiContext& g = *GImGui; return g.Style._MainScale; } // TODO_FROM_EXTERNAL-DPI: I don't want to formalize this just yet. Because reasons. Please don't use.
     inline    ImGuiWindow*  GetCurrentWindowRead()      { ImGuiContext& g = *GImGui; return g.CurrentWindow; }
     inline    ImGuiWindow*  GetCurrentWindow()          { ImGuiContext& g = *GImGui; g.CurrentWindow->WriteAccessed = true; return g.CurrentWindow; }
     IMGUI_API ImGuiWindow*  FindWindowByID(ImGuiID id);
@@ -3479,7 +3479,7 @@ namespace ImGui
 
     // Basic Helpers for widget code
     IMGUI_API void          ItemSize(const ImVec2& size, float text_baseline_y = -1.0f);
-    inline void             ItemSize(const ImRect& bb, float text_baseline_y = -1.0f) { ItemSize(bb.GetSize(), text_baseline_y); } // FIXME: This is a misleading API since we expect CursorPos to be bb.Min.
+    inline void             ItemSize(const ImRect& bb, float text_baseline_y = -1.0f) { ItemSize(bb.GetSize(), text_baseline_y); } // TODO_FROM_EXTERNAL: This is a misleading API since we expect CursorPos to be bb.Min.
     IMGUI_API bool          ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb = NULL, ImGuiItemFlags extra_flags = 0);
     IMGUI_API bool          ItemHoverable(const ImRect& bb, ImGuiID id, ImGuiItemFlags item_flags);
     IMGUI_API bool          IsWindowContentHoverable(ImGuiWindow* window, ImGuiHoveredFlags flags = 0);
@@ -3564,7 +3564,7 @@ namespace ImGui
     IMGUI_API void          ActivateItemByID(ImGuiID id);   // Activate an item by ID (button, checkbox, tree node etc.). Activation is queued and processed on the next frame when the item is encountered again. Was called 'ActivateItem()' before 1.89.7.
 
     // Inputs
-    // FIXME: Eventually we should aim to move e.g. IsActiveIdUsingKey() into IsKeyXXX functions.
+    // TODO_FROM_EXTERNAL: Eventually we should aim to move e.g. IsActiveIdUsingKey() into IsKeyXXX functions.
     inline bool             IsNamedKey(ImGuiKey key)                    { return key >= ImGuiKey_NamedKey_BEGIN && key < ImGuiKey_NamedKey_END; }
     inline bool             IsNamedKeyOrMod(ImGuiKey key)               { return (key >= ImGuiKey_NamedKey_BEGIN && key < ImGuiKey_NamedKey_END) || key == ImGuiMod_Ctrl || key == ImGuiMod_Shift || key == ImGuiMod_Alt || key == ImGuiMod_Super; }
     inline bool             IsLegacyKey(ImGuiKey key)                   { return key >= ImGuiKey_LegacyNativeKey_BEGIN && key < ImGuiKey_LegacyNativeKey_END; }
@@ -3744,7 +3744,7 @@ namespace ImGui
 
     // Widgets: Text
     IMGUI_API void          TextEx(const char* text, const char* text_end = NULL, ImGuiTextFlags flags = 0);
-    IMGUI_API void          TextAligned(float align_x, float width, const char* fmt, ...) IM_FMTARGS(3); // FIXME-WIP: Works but API is likely to be reworked.
+    IMGUI_API void          TextAligned(float align_x, float width, const char* fmt, ...) IM_FMTARGS(3); // TODO_FROM_EXTERNAL-WIP: Works but API is likely to be reworked.
     IMGUI_API void          TextAlignedV(float align_x, float width, const char* fmt, va_list args) IM_FMTLIST(3);
 
     // Widgets
@@ -3916,7 +3916,7 @@ struct ImFontLoader
     bool            (*FontBakedLoadGlyph)(ImFontAtlas* atlas, ImFontConfig* src, ImFontBaked* baked, void* loader_data_for_baked_src, ImWchar codepoint, ImFontGlyph* out_glyph, float* out_advance_x);
 
     // Size of backend data, Per Baked * Per Source. Buffers are managed by core to avoid excessive allocations.
-    // FIXME: At this point the two other types of buffers may be managed by core to be consistent?
+    // TODO_FROM_EXTERNAL: At this point the two other types of buffers may be managed by core to be consistent?
     size_t          FontBakedSrcLoaderDataSize;
 
     ImFontLoader()  { memset((void*)this, 0, sizeof(*this)); }
