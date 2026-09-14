@@ -10,7 +10,7 @@ struct BoundingBox {
     BoundingBox() = default;
     BoundingBox(const glm::ivec3 &min, const glm::ivec3 &max);
 
-    bool isVisible;
+    bool isVisible = false;
 
     [[nodiscard]] bool isInside(glm::ivec3 position) const;
     [[nodiscard]] bool isIntersecting(const BoundingBox &bounding_box) const;
@@ -23,11 +23,23 @@ struct BoundingBox {
     void setMinCorner(const glm::ivec3 &min);
     void setMaxCorner(const glm::ivec3 &max);
 
+    template<typename Func>
+    void IterateOverAllPositions(Func action) const
+    {
+        for (int x = minCorner.x; x <= maxCorner.x; ++x) {
+            for (int y = minCorner.y; y <= maxCorner.y; ++y) {
+                for (int z = minCorner.z; z <= maxCorner.z; ++z) {
+                    action(glm::ivec3(x, y, z));
+                }
+            }
+        }
+    }
+
+
+
 private:
-    glm::ivec3 minCorner;
-    glm::ivec3 maxCorner;
-
-
+    glm::ivec3 minCorner{};
+    glm::ivec3 maxCorner{};
 
     void assertValidParameters() const;
 };

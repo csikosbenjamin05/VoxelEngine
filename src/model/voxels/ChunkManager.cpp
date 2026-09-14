@@ -10,9 +10,8 @@
 
 
 ChunkManager::ChunkManager(IWorldGenerator* worldGenerator, const glm::ivec3 centerIndex, const int renderDistanceHorizontal, const int renderDistanceVertical)
-	: dirtyChunkList(), centerChunkCoordinate(centerIndex), renderDistanceHorizontal(renderDistanceHorizontal),
-	  renderDistanceVertical(renderDistanceVertical), chunkMap(), worldGenerator(worldGenerator)
-{
+	: centerChunkCoordinate(centerIndex), renderDistanceHorizontal(renderDistanceHorizontal),
+	  renderDistanceVertical(renderDistanceVertical), worldGenerator(worldGenerator) {
 	//saveManager = new SaveFileManager("game");
 
 	CalculateTotalAndMinAndMaxCorner();
@@ -20,10 +19,9 @@ ChunkManager::ChunkManager(IWorldGenerator* worldGenerator, const glm::ivec3 cen
 	chunkMap.reserve(loadedChunkCount);
 	dirtyChunkList.reserve(loadedChunkCount);
 
-
-
-	for (int i = GetLeftMostChunkIndex(); i <= GetRightMostChunkIndex(); i++)
-		LoadOrGenerateChunkAt(i);
+	boundingBox.IterateOverAllPositions([this](const glm::ivec3 position) {
+		LoadOrGenerateChunkAt(position);
+	});
 }
 
 ChunkManager::~ChunkManager()
@@ -46,7 +44,7 @@ ChunkData* ChunkManager::GetChunkAt(const glm::ivec3& position) const
 	if (!IsChunkAt(position))
 		return nullptr;
 
-	return chunkMap.at(position);
+	return chunkMap.at(position).get();
 }
 
 inline bool ChunkManager::IsChunkAt(const glm::ivec3& position) const
@@ -56,28 +54,28 @@ inline bool ChunkManager::IsChunkAt(const glm::ivec3& position) const
 
 
 void ChunkManager::CalculateTotalAndMinAndMaxCorner() {
-	minCorner = glm::ivec3(
+	boundingBox.setMinCorner(glm::ivec3(
 		centerChunkCoordinate.x - renderDistanceHorizontal,
 		centerChunkCoordinate.y - renderDistanceVertical,
 		centerChunkCoordinate.z - renderDistanceHorizontal
-	);
+	));
 
-	maxCorner = glm::ivec3(
+	boundingBox.setMaxCorner(glm::ivec3(
 		centerChunkCoordinate.x + renderDistanceHorizontal,
 		centerChunkCoordinate.y + renderDistanceVertical,
 		centerChunkCoordinate.z + renderDistanceHorizontal
-	);
+	));
 
 	loadedChunkCount = (renderDistanceHorizontal * 2 + 1) * (renderDistanceVertical * 2 + 1);
 }
 
-void ChunkManager::LoadOrGenerateChunkAt(glm::ivec3 &position)
+void ChunkManager::LoadOrGenerateChunkAt(glm::ivec3 position)
 {
 	std::cout << "LoadOrGenerateChunkAt(" << position.x << "," << position.y << ", " << position.z << ")" << std::endl;
 
 	assert(!IsChunkAt(position) && "Chunk already in chunkMap");
 
-	auto chunk = new ChunkData(position);
+	auto chunk = std::make_unique<ChunkData>(position);
 
 	/*
 	if (saveManager->IsChunkSaved(position))
@@ -86,87 +84,62 @@ void ChunkManager::LoadOrGenerateChunkAt(glm::ivec3 &position)
 	}
 	else
 	{*/
-	worldGenerator->GenerateChunkAt(position, chunk);
-
+	worldGenerator->GenerateChunk(chunk.get());
 	dirtyChunkList.insert(position);
 	//}
 
-	chunk->RecalculateSurfaceHeights();
-	chunkMap[position] = chunk;
+	chunkMap.emplace(position, std::move(chunk));
 }
 
-void ChunkManager::UnloadChunkAt(int position)
+void ChunkManager::UnloadChunkAt(const glm::ivec3& position)
 {
-	std::cout << "UnloadChunkAt(" << position << ")" << std::endl;
-	auto it = chunkMap.find(position);
+	std::cout << "UnloadChunkAt(" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
+
+	const auto it = chunkMap.find(position);
 
 	assert(it != chunkMap.end() && "Tried to unload nonexistent chunk");
 
 	if (it != chunkMap.end())
 	{
 		// save it
+		/*
 		if (dirtyChunkList.count(position) || !saveManager->IsChunkSaved(position)) {
 			saveManager->SaveChunk(position, it->second);
 			dirtyChunkList.erase(position);
 		}
+		*/
 
 		// delete it
-		delete it->second;
 		chunkMap.erase(it);
 	}
 }
 
 
-void ChunkManager::SetCenterIndex(int index)
+void ChunkManager::SetCenterPosition(const glm::ivec3& newPosition)
 {
-	int diff = centerChunkCoordinate - index;
-	int oldLeft = GetLeftMostChunkIndex();
-	int oldRight = GetRightMostChunkIndex();
+	// No movement
+	if (newPosition == centerChunkCoordinate) return;
 
-	centerChunkCoordinate = index;
+	const BoundingBox oldBoundingBox = boundingBox;
 
-	int newLeft = GetLeftMostChunkIndex();
-	int newRight = GetRightMostChunkIndex();
+	centerChunkCoordinate = newPosition;
+	CalculateTotalAndMinAndMaxCorner();
 
-	bool movedLeft = diff > 0;
-	bool movedRight = diff < 0;
+	///////////////////////
+	// UNLOADING
+	///////////////////////
 
-	// unload old chunks
+	 oldBoundingBox.IterateOverAllPositions([this](const glm::ivec3 position) {
+	 	if (!boundingBox.isInside(position))
+	 		UnloadChunkAt(position);
+	 });
 
-	if (movedLeft) // left movement, unload from right
-	{
+	///////////////////////
+	// LOADING
+	///////////////////////
 
-		int unloadBoundary = std::max(newRight + 1, oldLeft);
-
-		for (int i = oldRight; i >= unloadBoundary; i--)
-			UnloadChunkAt(i);
-
-	}
-	else if (movedRight) // right movement, unload from left
-	{
-
-		int unloadBoundary = std::min(newLeft - 1, oldRight);
-
-		for (int i = oldLeft; i <= unloadBoundary; i++)
-			UnloadChunkAt(i);
-
-	}
-
-	// load or generate new ones
-
-	if (movedLeft) // left movement, load from left
-	{
-		int loadBoundry = std::min(newRight, oldLeft - 1);
-
-		for (int i = newLeft; i <= loadBoundry; i++)
-			LoadOrGenerateChunkAt(i);
-
-	}
-	else if (movedRight) // right movement, load from right
-	{
-		int loadBoundry = std::max(oldRight + 1, newLeft);
-
-		for (int i = newRight; i >= loadBoundry; i--)
-			LoadOrGenerateChunkAt(i);
-	}
+	boundingBox.IterateOverAllPositions([this](const glm::ivec3 position) {
+		if (!chunkMap.contains(position))
+			LoadOrGenerateChunkAt(position);
+	});
 }

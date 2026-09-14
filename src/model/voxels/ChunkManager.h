@@ -7,6 +7,9 @@
 #include <unordered_set>
 #include <glm/vec3.hpp>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+
 #include "ChunkData.h"
 
 class IWorldGenerator;
@@ -20,12 +23,12 @@ public:
     int GetRenderDistanceHorizontal() const {return renderDistanceHorizontal;}
     int GetRenderDistanceVertical() const {return renderDistanceVertical;}
 
-    glm::ivec3 minCorner, maxCorner;
+    BoundingBox boundingBox;
 
     ChunkData* GetChunkAt(const glm::ivec3& position) const;
     bool IsChunkAt(const glm::ivec3& position) const;
 
-    void SetCenterIndex(const glm::ivec3& index);
+    void SetCenterPosition(const glm::ivec3& newPosition);
 
     std::unordered_set<glm::ivec3> dirtyChunkList;
 
@@ -38,12 +41,12 @@ private:
     int renderDistanceVertical;
     int loadedChunkCount;
 
-    std::unordered_map<glm::ivec3, ChunkData*> chunkMap;
+    std::unordered_map<glm::ivec3, std::unique_ptr<ChunkData>> chunkMap;
 
     IWorldGenerator* worldGenerator;
 
     void CalculateTotalAndMinAndMaxCorner();
-    void LoadOrGenerateChunkAt(glm::ivec3 &position);
+    void LoadOrGenerateChunkAt(glm::ivec3 position);
     void UnloadChunkAt(const glm::ivec3&  position);
 };
 
