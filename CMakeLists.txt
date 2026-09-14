@@ -50,6 +50,8 @@ set(SOURCES
         src/rendering/VoxelShader.h
         src/model/math/Frustum.cpp
         src/rendering/geometry/BoundingBoxRenderer.cpp
+        src/rendering/voxels/VisualChunkManager.cpp
+        src/rendering/voxels/VisualChunkManager.h
 
 )
 # src/model/voxels/ChunkManager.cpp

@@ -115,12 +115,14 @@ void ChunkManager::UnloadChunkAt(const glm::ivec3& position)
 }
 
 
-void ChunkManager::SetCenterPosition(const glm::ivec3& newPosition)
+CenterChangedEvent ChunkManager::SetCenterPosition(const glm::ivec3& newPosition)
 {
 	// No movement
 	if (newPosition == centerChunkCoordinate) return;
 
 	const BoundingBox oldBoundingBox = boundingBox;
+
+	CenterChangedEvent centerChangedEvent;
 
 	centerChunkCoordinate = newPosition;
 	CalculateTotalAndMinAndMaxCorner();
@@ -129,17 +131,23 @@ void ChunkManager::SetCenterPosition(const glm::ivec3& newPosition)
 	// UNLOADING
 	///////////////////////
 
-	 oldBoundingBox.IterateOverAllPositions([this](const glm::ivec3 position) {
-	 	if (!boundingBox.isInside(position))
+	 oldBoundingBox.IterateOverAllPositions([this, &centerChangedEvent](const glm::ivec3 position) {
+	 	if (!boundingBox.isInside(position)) {
 	 		UnloadChunkAt(position);
+			centerChangedEvent.unloadedPositions.insert(position);
+	 	}
 	 });
 
 	///////////////////////
 	// LOADING
 	///////////////////////
 
-	boundingBox.IterateOverAllPositions([this](const glm::ivec3 position) {
-		if (!chunkMap.contains(position))
+	boundingBox.IterateOverAllPositions([this, &centerChangedEvent](const glm::ivec3 position) {
+		if (!chunkMap.contains(position)) {
 			LoadOrGenerateChunkAt(position);
+			centerChangedEvent.loadedPositions.insert(position);
+		}
 	});
+
+	return centerChangedEvent;
 }

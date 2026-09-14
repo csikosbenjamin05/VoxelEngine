@@ -11,13 +11,15 @@
 #include "model/voxels/VoxelType.h"
 #include "rendering/wrapper/shader.h"
 
-VisualChunk::VisualChunk(TextureAtlas *textureAtlas, ChunkData *newChunk)
-: textureAtlas(textureAtlas), chunk(newChunk)
+VisualChunk::VisualChunk(ChunkData *newChunk)
+: chunk(newChunk)
 {
     SetChunkReference(newChunk);
 }
 
-VisualChunk::~VisualChunk() = default;
+VisualChunk::~VisualChunk() {
+    CleanOGLObject(gpuObject);
+};
 
 
 

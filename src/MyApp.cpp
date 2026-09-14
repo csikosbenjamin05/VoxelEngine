@@ -10,7 +10,7 @@
 
 #include "imgui.h"
 
-MyApp::MyApp() : chunk_data(glm::ivec3(0)), visual_chunk(&texture_atlas, &chunk_data)
+MyApp::MyApp() : chunk_data(glm::ivec3(0)), visual_chunk(&chunk_data)
 , randomFloatGenerator(1), perlinNoise(&randomFloatGenerator)
 , my_terrain_generator(&perlinNoise, &randomFloatGenerator)
 , my_world_generator(&my_terrain_generator)

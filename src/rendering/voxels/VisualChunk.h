@@ -5,14 +5,11 @@
 #pragma once
 
 #include "model/voxels/ChunkData.h"
-#include "model/math/direction.h"
 #include "rendering/wrapper/meshData.h"
-#include "TextureAtlas.h"
 
 class VisualChunk : public DrawableMesh {
     public:
-
-    VisualChunk(TextureAtlas* textureAtlas, ChunkData* newChunk);
+    explicit VisualChunk(ChunkData* newChunk);
     ~VisualChunk() override;
 
     void Bake();
@@ -30,7 +27,6 @@ class VisualChunk : public DrawableMesh {
 
 
 private:
-    TextureAtlas* textureAtlas;
     ChunkData* chunk;
 
 
