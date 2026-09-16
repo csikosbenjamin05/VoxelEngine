@@ -13,8 +13,8 @@
 #include "ChunkData.h"
 
 struct CenterChangedEvent {
-    std::unordered_set<glm::ivec3> unloadedPositions;
-    std::unordered_set<glm::ivec3> loadedPositions;
+    std::vector<glm::ivec3> unloadedPositions;
+    std::vector<glm::ivec3> loadedPositions;
 };
 
 class IWorldGenerator;
@@ -22,6 +22,7 @@ class IWorldGenerator;
 class ChunkManager {
 public:
     ~ChunkManager();
+
 
     explicit ChunkManager(IWorldGenerator* worldGenerator, glm::ivec3 centerIndex, int renderDistanceHorizontal, int renderDistanceVertical);
 
@@ -35,6 +36,8 @@ public:
     bool IsChunkAt(const glm::ivec3& position) const;
 
     [[nodiscard]] CenterChangedEvent SetCenterPosition(const glm::ivec3& newPosition);
+    void SetRenderDistance(int vertical_render_distance, int horizontal_render_distance);
+
 
     std::unordered_set<glm::ivec3> dirtyChunkList;
 

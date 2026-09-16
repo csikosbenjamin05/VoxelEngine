@@ -37,6 +37,7 @@ set(SOURCES
 
         src/model/voxels/VoxelType.cpp
         src/model/voxels/ChunkData.cpp
+        src/model/voxels/ChunkManager.cpp
 
         src/model/noise/PerlinNoise.cpp
         src/model/noise/generators/RandomFloatGenerator.cpp
@@ -54,7 +55,6 @@ set(SOURCES
         src/rendering/voxels/VisualChunkManager.h
 
 )
-# src/model/voxels/ChunkManager.cpp
 
 # 3. Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES})

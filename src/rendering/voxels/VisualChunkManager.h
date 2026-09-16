@@ -18,7 +18,7 @@ public:
     void Render(glm::mat4 viewProj) const;
     void Clean();
 
-    void UpdateCenterChunk(glm::ivec3 centerChunk) const;
+    void UpdateCenterChunk(glm::ivec3 centerChunk);
 
     void ChangeRenderDistance(int verticalRenderDistance, int horizontalRenderDistance);
 
@@ -28,6 +28,7 @@ private:
 
     Shader voxelShader;
 
-    std::unordered_map<glm::ivec3, std::unique_ptr<VisualChunk>> visualChunkMap;
+    std::unordered_map<glm::ivec3, std::unique_ptr<VisualChunk>> activeVisualChunkMap;
+    std::vector<std::unique_ptr<VisualChunk>> visualChunkPool;
 };
 

@@ -10,10 +10,12 @@
 
 #include "imgui.h"
 
-MyApp::MyApp() : chunk_data(glm::ivec3(0)), visual_chunk(&chunk_data)
-, randomFloatGenerator(1), perlinNoise(&randomFloatGenerator)
+MyApp::MyApp() :
+randomFloatGenerator(1), perlinNoise(&randomFloatGenerator)
 , my_terrain_generator(&perlinNoise, &randomFloatGenerator)
-, my_world_generator(&my_terrain_generator)
+, my_world_generator(&my_terrain_generator),
+chunk_manager(&my_world_generator, glm::ivec3(0,0,0), 1, 1),
+visual_chunk_manager(&chunk_manager, &texture_atlas)
 {
     //chunk_data.generateNoise(glm::ivec3(0,0,0));
 }
@@ -30,19 +32,20 @@ bool MyApp::Init() {
     InitShaders();
 
     bounding_box_renderer.Init();
-    bounding_box_renderer.AddBoundingBoxReference(visual_chunk.GetBoundingBoxReference());
+    //bounding_box_renderer.AddBoundingBoxReference(visual_chunk.GetBoundingBoxReference());
+
+    visual_chunk_manager.Init();
 
     return true;
 }
 
 void MyApp::InitShaders() {
     myShader.initShader("shaders/vert.vert", "shaders/frag.frag");
-    voxelShader.initShader("shaders/voxel.vert", "shaders/voxel.frag");
+    //voxelShader.initShader("shaders/voxel.vert", "shaders/voxel.frag");
 }
 
 void MyApp::InitGeometry() {
-    my_world_generator.GenerateChunk(&chunk_data);
-    visual_chunk.Init();
+
 
 /*
     // 4. Define Triangle Vertices (Positions + RGB Colors)
@@ -200,7 +203,7 @@ void MyApp::RenderGUI(const ImGuiIO &im_gui_io) const {
 
 void MyApp::RenderGeometry() const {
 
-
+/*
     voxelShader.use();
     glUniformMatrix4fv(
         voxelShader.getUniformLocation("viewProj"),
@@ -210,6 +213,9 @@ void MyApp::RenderGeometry() const {
     );
     texture_atlas.UseVoxelAtlas(0);
     visual_chunk.DrawObject();
+*/
+
+    visual_chunk_manager.Render(camera.GetViewProjMatrix(static_cast<float>(SCR_WIDTH), static_cast<float>(SCR_HEIGHT)));
 
 
     myShader.use();
@@ -231,18 +237,18 @@ void MyApp::Clean() {
     CleanGeometry();
 
     bounding_box_renderer.Clean();
+
+    visual_chunk_manager.Clean();
 }
 
 void MyApp::CleanShaders() {
     myShader.deleteShader();
-    voxelShader.deleteShader();
 }
 
 void MyApp::CleanGeometry() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
-    visual_chunk.Clean();
 }
 
 void MyApp::CleanTextures() {

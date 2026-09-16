@@ -18,7 +18,8 @@ VisualChunk::VisualChunk(ChunkData *newChunk)
 }
 
 VisualChunk::~VisualChunk() {
-    CleanOGLObject(gpuObject);
+    if (isGenerated)
+        CleanOGLObject(gpuObject);
 };
 
 
