@@ -21,7 +21,7 @@ class VisualChunk : public DrawableMesh {
 
     void DrawObject() const override;
 
-    [[nodiscard]] const BoundingBox* GetBoundingBoxReference() const {
+    [[nodiscard]] BoundingBox& GetBoundingBoxReference() {
         return chunk->getBoundingBox();
     }
 

@@ -5,6 +5,7 @@
 #include "ChunkManager.h"
 
 #include <iostream>
+#include <ranges>
 
 #include "model/noise/WorldGeneration.h"
 
@@ -66,12 +67,15 @@ void ChunkManager::CalculateTotalAndMinAndMaxCorner() {
 		centerChunkCoordinate.z + renderDistanceHorizontal
 	));
 
-	loadedChunkCount = (renderDistanceHorizontal * 2 + 1) * (renderDistanceVertical * 2 + 1);
+	loadedChunkCount =
+			  (renderDistanceHorizontal * 2 + 1) // X
+			* (renderDistanceHorizontal * 2 + 1) // Z
+			* (renderDistanceVertical * 2 + 1); // Y
 }
 
 void ChunkManager::LoadOrGenerateChunkAt(glm::ivec3 position)
 {
-	std::cout << "LoadOrGenerateChunkAt(" << position.x << "," << position.y << ", " << position.z << ")" << std::endl;
+	//std::cout << "LoadOrGenerateChunkAt(" << position.x << "," << position.y << ", " << position.z << ")" << std::endl;
 
 	assert(!IsChunkAt(position) && "Chunk already in chunkMap");
 
@@ -117,12 +121,13 @@ void ChunkManager::UnloadChunkAt(const glm::ivec3& position)
 
 CenterChangedEvent ChunkManager::SetCenterPosition(const glm::ivec3& newPosition)
 {
+	CenterChangedEvent centerChangedEvent;
+
 	// No movement
-	if (newPosition == centerChunkCoordinate) return;
+	if (newPosition == centerChunkCoordinate) return centerChangedEvent;
 
 	const BoundingBox oldBoundingBox = boundingBox;
 
-	CenterChangedEvent centerChangedEvent;
 
 	centerChunkCoordinate = newPosition;
 	CalculateTotalAndMinAndMaxCorner();
@@ -134,7 +139,7 @@ CenterChangedEvent ChunkManager::SetCenterPosition(const glm::ivec3& newPosition
 	 oldBoundingBox.IterateOverAllPositions([this, &centerChangedEvent](const glm::ivec3 position) {
 	 	if (!boundingBox.isInside(position)) {
 	 		UnloadChunkAt(position);
-			centerChangedEvent.unloadedPositions.insert(position);
+			centerChangedEvent.unloadedPositions.emplace_back(position);
 	 	}
 	 });
 
@@ -145,9 +150,33 @@ CenterChangedEvent ChunkManager::SetCenterPosition(const glm::ivec3& newPosition
 	boundingBox.IterateOverAllPositions([this, &centerChangedEvent](const glm::ivec3 position) {
 		if (!chunkMap.contains(position)) {
 			LoadOrGenerateChunkAt(position);
-			centerChangedEvent.loadedPositions.insert(position);
+			centerChangedEvent.loadedPositions.emplace_back(position);
 		}
 	});
 
 	return centerChangedEvent;
+}
+
+void ChunkManager::SetRenderDistance(const int vertical_render_distance, const int horizontal_render_distance) {
+
+	// Unload all chunks
+	for (const auto &pos: chunkMap | std::views::keys) {
+		UnloadChunkAt(pos);
+	}
+
+	chunkMap.clear();
+	dirtyChunkList.clear();
+
+	// Set new renderDistance values
+	renderDistanceHorizontal = horizontal_render_distance;
+	renderDistanceVertical = vertical_render_distance;
+	CalculateTotalAndMinAndMaxCorner();
+
+	chunkMap.reserve(loadedChunkCount);
+	dirtyChunkList.reserve(loadedChunkCount);
+
+	// Load or generate at all the new positions
+	boundingBox.IterateOverAllPositions([this](const glm::ivec3 position) {
+		LoadOrGenerateChunkAt(position); // TODO : CHUNK GENERATOR THREAD
+	});
 }

@@ -29,7 +29,7 @@ constexpr float SENSITIVITY =  0.2f;
 constexpr float ZOOM        =  45.0f;
 
 constexpr float NEAR        =  0.01f;
-constexpr float FAR        =  100.0f;
+constexpr float FAR        =  400.0f;
 
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
@@ -78,7 +78,7 @@ public:
 
 
     void UpdateFrustum(float SCR_WIDTH, float SCR_HEIGHT);
-    void UpdateBoundingBoxVisibility(BoundingBox& bounding_box) const;
+    void UpdateBoundingBoxVisibility(BoundingBox* bounding_box) const;
 
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles

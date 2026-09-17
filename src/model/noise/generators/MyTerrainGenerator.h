@@ -20,5 +20,7 @@ public:
 	[[nodiscard]] const VoxelType* GetVoxelTypeAt(glm::ivec3& voxelCoordinate, int surfaceHeight) const override;
 	[[nodiscard]] int GetSurfaceHeight(int x, int z) const override;
 private:
-	PerlinLayer2D heightLayer;
+	PerlinLayer2D baseHeightLayer;
+	PerlinLayer2D detailHeightLayer;
+	PerlinLayer2D detailAmplitudeLayer;
 };

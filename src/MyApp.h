@@ -20,9 +20,9 @@
 #include "rendering/Camera.h"
 
 #include "rendering/voxels/TextureAtlas.h"
-#include "rendering/voxels/VisualChunk.h"
-#include "model/voxels/ChunkData.h"
+#include "model/voxels/ChunkManager.h"
 #include "rendering/geometry/BoundingBoxRenderer.h"
+#include "rendering/voxels/VisualChunkManager.h"
 
 struct ImGuiIO;
 
@@ -37,7 +37,7 @@ public:
 
     void Update(const SUpdateInfo&);
     void Render() const;
-    void RenderGUI(const ImGuiIO &im_gui_io) const;
+    void RenderGUI(const ImGuiIO &im_gui_io);
 
     void SetResolution(int width, int height);
     void ResolutionChangedEvent();
@@ -69,23 +69,26 @@ private:
     int SCR_HEIGHT{};
 
     TextureAtlas texture_atlas;
-    ChunkData chunk_data;
-    VisualChunk visual_chunk;
+    //ChunkData chunk_data;
+    //VisualChunk visual_chunk;
 
     Camera camera;
 
     unsigned int VBO = 0, VAO = 0, EBO = 0;
     Shader myShader;
-    Shader voxelShader;
+    //Shader voxelShader;
     Texture2D myTexture;
     Sampler2D mySampler;
 
     BoundingBoxRenderer bounding_box_renderer;
-
 
     RandomFloatGenerator randomFloatGenerator;
     PerlinNoise perlinNoise;
     MyTerrainGenerator my_terrain_generator;
     MyWorldGenerator my_world_generator;
 
+    ChunkManager chunk_manager;
+    VisualChunkManager visual_chunk_manager;
+
+    bool frustumFollowsCamera = true;
 };

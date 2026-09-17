@@ -21,13 +21,15 @@ VisualChunkManager::VisualChunkManager(ChunkManager *chunkManager, TextureAtlas 
 void VisualChunkManager::Init() {
     voxelShader.initShader("shaders/voxel.vert", "shaders/voxel.frag");
 
-    visualChunkMap.clear();
-    visualChunkMap.reserve(_chunkManager->GetTotalChunkCount());
+
+    activeVisualChunkMap.clear();
+    activeVisualChunkMap.reserve(_chunkManager->GetTotalChunkCount());
+    visualChunkPool.reserve(_chunkManager->GetTotalChunkCount());
 
     _chunkManager->boundingBox.IterateOverAllPositions([this](const glm::vec3 position) {
         auto vChunk = std::make_unique<VisualChunk>(_chunkManager->GetChunkAt(position));
         vChunk->Init();
-        visualChunkMap[position] = std::move(vChunk);
+        activeVisualChunkMap[position] = std::move(vChunk);
     });
 
 }
@@ -44,29 +46,78 @@ void VisualChunkManager::Render(glm::mat4 viewProj) const {
 
     _textureAtlas->UseVoxelAtlas(0);
 
-    for (const auto &val: visualChunkMap | std::views::values)
-        val->DrawObject();
+    for (const auto &val: activeVisualChunkMap | std::views::values) {
+        if (val->GetBoundingBoxReference().isVisible)
+            val->DrawObject();
+    }
 
 }
 
-void VisualChunkManager::UpdateCenterChunk(const glm::ivec3 centerChunk) const {
+void VisualChunkManager::UpdateFrustum(const Frustum &camera_frustum) {
+    frustum.set(camera_frustum);
+
+    for (const auto &val: activeVisualChunkMap | std::views::values) {
+        frustum.updateBoxVisibility(&val->GetBoundingBoxReference());
+    }
+
+}
+
+void VisualChunkManager::UpdateCenterChunk(const glm::ivec3 centerChunk) {
     auto [unloadedPositions, loadedPositions] = _chunkManager->SetCenterPosition(centerChunk);
 
-    assert(loadedPositions.size() == unloadedPositions.size() && "FATAL :: Mismatch between loaded positions and unloaded positions.");
+    // 1. Recycle unloaded visual chunks back into the pool
+    for (const auto& pos : unloadedPositions) {
+        if (auto it = activeVisualChunkMap.find(pos); it != activeVisualChunkMap.end()) {
+            visualChunkPool.push_back(std::move(it->second));
+            activeVisualChunkMap.erase(it);
+        }
+    }
 
-    auto loadedIterator = loadedPositions.begin();
-    auto unloadedIterator = loadedPositions.begin();
+    // 2. Assign chunks from the pool to new positions
+    for (const auto& pos : loadedPositions) {
+        std::unique_ptr<VisualChunk> vChunk;
 
-    while (unloadedIterator != unloadedPositions.end()) {
-        visualChunkMap.at(*unloadedIterator)->SetChunkReference(_chunkManager->GetChunkAt(*loadedIterator));
-        visualChunkMap.at(*unloadedIterator)->Bake();
-        ++unloadedIterator;
-        ++loadedIterator;
+        if (!visualChunkPool.empty()) {
+            vChunk = std::move(visualChunkPool.back());
+            visualChunkPool.pop_back();
+            vChunk->SetChunkReference(_chunkManager->GetChunkAt(pos));
+        } else {
+            vChunk = std::make_unique<VisualChunk>(_chunkManager->GetChunkAt(pos));
+            vChunk->Init();
+        }
+
+        vChunk->Bake(); // TODO : MESHING THREAD
+        activeVisualChunkMap.emplace(pos, std::move(vChunk));
     }
 }
 
-void VisualChunkManager::ChangeRenderDistance(int verticalRenderDistance, int horizontalRenderDistance) {
+void VisualChunkManager::ChangeRenderDistance(const int verticalRenderDistance, const int horizontalRenderDistance) {
 
+    // 1. Move all visual chunks back to the pool
+    for (auto &val: activeVisualChunkMap | std::views::values) {
+        val->Clean(); // might not get used again for a while, so clean it
+        visualChunkPool.push_back(std::move(val));
+    }
+    activeVisualChunkMap.clear(); // remove all the leftover positions and null pointers
+
+
+    _chunkManager->SetRenderDistance(verticalRenderDistance, horizontalRenderDistance);
+
+    _chunkManager->boundingBox.IterateOverAllPositions([this](const glm::ivec3 position) {
+
+        std::unique_ptr<VisualChunk> vChunk;
+
+        if (!visualChunkPool.empty()) {
+            vChunk = std::move(visualChunkPool.back());
+            visualChunkPool.pop_back();
+            vChunk->SetChunkReference(_chunkManager->GetChunkAt(position));
+            vChunk->Bake(); // TODO : MESHING THREAD
+        } else {
+            vChunk = std::make_unique<VisualChunk>(_chunkManager->GetChunkAt(position));
+            vChunk->Init(); // TODO : MESHING THREAD
+        }
+        activeVisualChunkMap.emplace(position, std::move(vChunk));
+    });
 
 }
 
@@ -74,9 +125,13 @@ void VisualChunkManager::ChangeRenderDistance(int verticalRenderDistance, int ho
 
 void VisualChunkManager::Clean() {
 
-    for (const auto &val: visualChunkMap | std::views::values)
+    for (const auto &val: activeVisualChunkMap | std::views::values)
         val->Clean();
 
-    visualChunkMap.clear();
+    for (const auto &val : visualChunkPool)
+        val->Clean();
+
+    activeVisualChunkMap.clear();
+    visualChunkPool.clear();
 
 }

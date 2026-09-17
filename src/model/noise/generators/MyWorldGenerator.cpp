@@ -12,19 +12,22 @@ MyWorldGenerator::MyWorldGenerator(MyTerrainGenerator* terrainGen)
 
 void MyWorldGenerator::GenerateChunk(ChunkData* chunk) const
 {
-    const auto position = chunk->getChunkPosition();
+    const auto position = chunk->getChunkPosition() * ChunkData::SIZE;
 
     VoxelData voxelData;
     for (int z = 0; z < ChunkData::SIZE; z++) {
         for (int x = 0; x < ChunkData::SIZE; x++) {
-            const int surface = terrainGenerator->GetSurfaceHeight(x, z);
+            const int surface = terrainGenerator->GetSurfaceHeight(x + position.x, z + position.z);
             for (int y = 0; y < ChunkData::SIZE; y++) {
 
-                auto voxel_coordinate = position + glm::ivec3(x,y,z);
-                const auto voxelType = terrainGenerator->GetVoxelTypeAt(voxel_coordinate, surface);
+                auto voxel_local_coordinate = glm::ivec3(x,y,z);
+
+                auto voxel_world_coordinate = position + voxel_local_coordinate;
+                const auto voxelType = terrainGenerator->GetVoxelTypeAt(voxel_world_coordinate, surface);
 
                 voxelData.setID(voxelType->id);
-                chunk->set(voxel_coordinate, voxelData);
+                chunk->set(voxel_local_coordinate, voxelData);
+
             }
         }
     }

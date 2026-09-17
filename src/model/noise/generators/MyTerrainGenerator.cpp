@@ -5,9 +5,15 @@
 #include <model/voxels/ChunkData.h>
 #include <model/voxels/VoxelType.h>
 
+#include <glm/exponential.hpp>
+
+#include <cmath>
+
 
 MyTerrainGenerator::MyTerrainGenerator(PerlinNoise* perlinNoise, RandomFloatGenerator* rfg)
-	: heightLayer(perlinNoise, rfg, 1.0f / 30.0f)
+	: baseHeightLayer(perlinNoise, rfg, 1.0f / 60.0f),
+detailHeightLayer(perlinNoise, rfg, 1.0f / 10.0f),
+detailAmplitudeLayer(perlinNoise, rfg, 1.0f / 90.0f)
 {
 }
 
@@ -30,10 +36,18 @@ const VoxelType* MyTerrainGenerator::GetVoxelTypeAt(glm::ivec3& voxelCoordinate,
 
 void MyTerrainGenerator::SetSeed(RandomFloatGenerator* rfg)
 {
-	heightLayer.SetSeed(rfg);
+	baseHeightLayer.SetSeed(rfg);
 }
 
 int MyTerrainGenerator::GetSurfaceHeight(const int x, const int z) const
 {
-	return static_cast<int>(heightLayer.GetValueAt(glm::ivec2(x, z)) * ChunkData::SIZE);
+	const float base = baseHeightLayer.GetValueAt(glm::vec2(x, z));
+
+	const float detailAmplitude = detailAmplitudeLayer.GetValueAt(glm::vec2(x, z));
+	float detail = detailHeightLayer.GetValueAt(glm::vec2(x, z)) * std::pow(detailAmplitude, 2);
+
+
+	const auto final = static_cast<float>(std::pow<float>(base + detail, 2));
+
+	return static_cast<int>(final * ChunkData::SIZE * 2.0f);
 }

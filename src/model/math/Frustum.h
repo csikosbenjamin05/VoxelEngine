@@ -21,6 +21,9 @@ struct Plane {
     : normal(glm::normalize(norm)), distance(-glm::dot(normal, p1))
     {}
 
+    void set(float dist, const glm::vec3& norm);
+    void set(const Plane& other) {set(other.distance, other.normal);}
+
 
     // Normalize plane coefficients so distance tests produce exact metric offsets
     void normalize();
@@ -43,10 +46,12 @@ struct Frustum {
     Plane farFace;
     Plane nearFace;
 
+    void set(const Frustum& other);
+
     void updateFrustumFromCamera(
         glm::vec3 Position, glm::vec3 Front, glm::vec3 Up, glm::vec3 Right,
         float aspect, float fovY, float zNear, float zFar
     );
 
-    void updateBoxVisibility(BoundingBox& bounding_box) const;
+    void updateBoxVisibility(BoundingBox* bounding_box) const;
 };
