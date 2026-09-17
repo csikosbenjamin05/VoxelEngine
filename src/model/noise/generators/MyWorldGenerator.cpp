@@ -17,7 +17,7 @@ void MyWorldGenerator::GenerateChunk(ChunkData* chunk) const
     VoxelData voxelData;
     for (int z = 0; z < ChunkData::SIZE; z++) {
         for (int x = 0; x < ChunkData::SIZE; x++) {
-            const int surface = terrainGenerator->GetSurfaceHeight(x, z);
+            const int surface = terrainGenerator->GetSurfaceHeight(x + position.x, z + position.z);
             for (int y = 0; y < ChunkData::SIZE; y++) {
 
                 auto voxel_local_coordinate = glm::ivec3(x,y,z);

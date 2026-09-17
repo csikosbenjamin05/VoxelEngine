@@ -82,7 +82,7 @@ void Camera::UpdateFrustum(const float SCR_WIDTH, const float SCR_HEIGHT) {
     );
 }
 
-void inline Camera::UpdateBoundingBoxVisibility(BoundingBox &bounding_box) const {
+void inline Camera::UpdateBoundingBoxVisibility(BoundingBox *bounding_box) const {
     frustum.updateBoxVisibility(bounding_box);
 }
 

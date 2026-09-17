@@ -5,6 +5,7 @@
 
 #include <rendering/voxels/VisualChunk.h>
 
+#include "model/math/Frustum.h"
 #include "rendering/wrapper/shader.h"
 
 class TextureAtlas;
@@ -19,8 +20,9 @@ public:
     void Clean();
 
     void UpdateCenterChunk(glm::ivec3 centerChunk);
-
     void ChangeRenderDistance(int verticalRenderDistance, int horizontalRenderDistance);
+
+    void UpdateFrustum(const Frustum &frustum);
 
 private:
     ChunkManager* _chunkManager;
@@ -30,5 +32,7 @@ private:
 
     std::unordered_map<glm::ivec3, std::unique_ptr<VisualChunk>> activeVisualChunkMap;
     std::vector<std::unique_ptr<VisualChunk>> visualChunkPool;
+
+    Frustum frustum;
 };
 

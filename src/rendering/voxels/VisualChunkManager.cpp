@@ -46,8 +46,19 @@ void VisualChunkManager::Render(glm::mat4 viewProj) const {
 
     _textureAtlas->UseVoxelAtlas(0);
 
-    for (const auto &val: activeVisualChunkMap | std::views::values)
-        val->DrawObject();
+    for (const auto &val: activeVisualChunkMap | std::views::values) {
+        if (val->GetBoundingBoxReference().isVisible)
+            val->DrawObject();
+    }
+
+}
+
+void VisualChunkManager::UpdateFrustum(const Frustum &camera_frustum) {
+    frustum.set(camera_frustum);
+
+    for (const auto &val: activeVisualChunkMap | std::views::values) {
+        frustum.updateBoxVisibility(&val->GetBoundingBoxReference());
+    }
 
 }
 

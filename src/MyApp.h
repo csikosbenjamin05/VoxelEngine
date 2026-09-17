@@ -37,7 +37,7 @@ public:
 
     void Update(const SUpdateInfo&);
     void Render() const;
-    void RenderGUI(const ImGuiIO &im_gui_io) const;
+    void RenderGUI(const ImGuiIO &im_gui_io);
 
     void SetResolution(int width, int height);
     void ResolutionChangedEvent();
@@ -90,4 +90,5 @@ private:
     ChunkManager chunk_manager;
     VisualChunkManager visual_chunk_manager;
 
+    bool frustumFollowsCamera = true;
 };

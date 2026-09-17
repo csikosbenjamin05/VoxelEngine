@@ -152,8 +152,7 @@ int main() {
 
     // Setup Platform/Renderer bindings
     //constexpr auto glsl_version = "#version 330";
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(nullptr); // imgui picks the glsl version automatically
+
 
     {
         MyApp my_app;
@@ -173,6 +172,11 @@ int main() {
             }
         });
 
+        glfwSetKeyCallback(window, processInput);
+
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplOpenGL3_Init(nullptr); // imgui picks the glsl version automatically
+
         bool quit = !my_app.Init();
 
         double frameStartTime = glfwGetTime();
@@ -180,7 +184,6 @@ int main() {
         while (!quit) {
 
             // input
-            glfwSetKeyCallback(window, processInput);
 
             // --- Application GUI ---
 

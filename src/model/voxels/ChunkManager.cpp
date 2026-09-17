@@ -75,7 +75,7 @@ void ChunkManager::CalculateTotalAndMinAndMaxCorner() {
 
 void ChunkManager::LoadOrGenerateChunkAt(glm::ivec3 position)
 {
-	std::cout << "LoadOrGenerateChunkAt(" << position.x << "," << position.y << ", " << position.z << ")" << std::endl;
+	//std::cout << "LoadOrGenerateChunkAt(" << position.x << "," << position.y << ", " << position.z << ")" << std::endl;
 
 	assert(!IsChunkAt(position) && "Chunk already in chunkMap");
 

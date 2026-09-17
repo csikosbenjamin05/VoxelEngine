@@ -147,9 +147,11 @@ struct ChunkData {
     void generateNoise(glm::ivec3 chunk_position);
     void updateEdges();
 
-    [[nodiscard]] const BoundingBox* getBoundingBox() const {
-        return &bounding_box;
+    [[nodiscard]] BoundingBox& getBoundingBox() {
+        return bounding_box;
     }
+
+
 
 private:
 
